@@ -1,41 +1,74 @@
 /**
- * Type definitions for the library
+ * Core types for @nextnode/validation
+ * 
+ * Error format: key + reason only, no internationalization
+ * Consumer projects handle i18n based on keys
  */
 
+export type ValidationErrorCode = 
+  | 'INVALID_EMAIL'
+  | 'INVALID_API_KEY' 
+  | 'INVALID_UUID'
+  | 'INVALID_URL'
+  | 'INVALID_SEMVER'
+  | 'INVALID_SLUG'
+  | 'INVALID_PROJECT_NAME'
+  | 'INVALID_USERNAME'
+  | 'REQUIRED_FIELD'
+  | 'FIELD_TOO_SHORT'
+  | 'FIELD_TOO_LONG'
+  | 'INVALID_FORMAT'
+  | 'INVALID_RANGE'
+  | 'ASYNC_VALIDATION_FAILED'
+  | 'CONDITIONAL_VALIDATION_FAILED'
+  | 'DEPENDENCY_CHECK_FAILED'
+
 /**
- * Configuration options for the client
+ * Standardized validation error for all NextNode projects
  */
-export interface ClientConfig {
-  /** API key for authentication */
-  apiKey?: string
-  /** Base URL for API requests */
-  baseUrl?: string
-  /** Request timeout in milliseconds */
-  timeout?: number
+export type ValidationError = {
+  /** Error key for i18n lookup by consumer */
+  key: ValidationErrorCode
+  /** Technical reason for debugging */
+  reason: string
+  /** Path to the field in object (optional) */
+  path?: string
+  /** Value that failed validation (optional) */
+  value?: unknown
 }
 
 /**
- * Response interface for API calls
+ * Result type for validation operations
  */
-export interface ApiResponse<T = unknown> {
-  /** Whether the request was successful */
-  success: boolean
-  /** Response data (if successful) */
-  data?: T
-  /** Error message (if failed) */
-  error?: string
-  /** HTTP status code */
-  statusCode: number
+export type ValidationResult<T> = 
+  | { success: true; data: T }
+  | { success: false; errors: ValidationError[] }
+
+/**
+ * Async validation function type
+ */
+export type AsyncValidator<T> = (value: T) => Promise<ValidationResult<T>>
+
+/**
+ * Configuration for async validators with caching
+ */
+export type AsyncValidatorConfig = {
+  /** Cache TTL in milliseconds */
+  cacheTtl?: number
+  /** Max cache size */
+  maxCacheSize?: number
+  /** Custom cache key generator */
+  cacheKeyFn?: (value: unknown) => string
 }
 
 /**
- * Generic error interface
+ * NextNode domain types for validation
  */
-export interface LibraryError {
-  /** Error code */
-  code: string
-  /** Human-readable error message */
-  message: string
-  /** Optional error details */
-  details?: Record<string, unknown>
+export type NextNodeDomains = {
+  /** NextNode API key format: nk_xxxxx */
+  apiKey: string
+  /** NextNode project slug format */
+  projectSlug: string
+  /** NextNode username format */
+  username: string
 }

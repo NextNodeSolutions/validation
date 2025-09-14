@@ -1,38 +1,45 @@
-# CLAUDE.md - Library Template
+# CLAUDE.md - @nextnode/validation
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-This is a **library template** for NextNode TypeScript packages. It follows the established patterns from `@nextnode/config-manager` and `@nextnode/logger` with modern CI/CD workflows and comprehensive tooling.
+This is **@nextnode/validation**, a TypeScript validation library powered by ArkType for comprehensive input validation across NextNode projects. It provides environment-agnostic validation with NextNode-specific business rules.
 
-**Template Features:**
-- **TypeScript strict mode** with maximum type safety
-- **ESM-only package** with proper exports configuration
-- **Modern CI/CD** with automated version management and publishing
-- **Comprehensive tooling** (ESLint, Biome, Vitest, Husky)
-- **Automated release management** with changesets and NPM provenance
+**Key Features:**
+- **ArkType-powered validation** - Ultra-fast runtime validation (20x faster than Zod)
+- **Environment agnostic** - Works in Node.js, browsers, and edge workers
+- **NextNode business logic** - Validators for API keys, emails, project slugs, etc.
+- **TypeScript-first design** - Perfect type inference and strict typing
+- **Standardized errors** - Consistent error format across all NextNode projects
+- **Advanced validation patterns** - Conditional, async, and transformation utilities
 
-## Template Structure
+## Project Structure
 
 ```
-library/
+@nextnode/validation/
 ├── .changeset/              # Version management configuration
 ├── .github/workflows/       # CI/CD workflows (test, version, publish)
 ├── .husky/                  # Git hooks configuration
 ├── src/                     # Source code
-│   ├── lib/                # Core library modules
-│   ├── types/              # Type definitions
-│   ├── utils/              # Utility functions (includes logger)
-│   ├── __tests__/          # Test files with examples
-│   └── index.ts            # Main export file
-├── package.json            # Package configuration
+│   ├── types/              # Core types and interfaces
+│   ├── errors/             # Error formatting and standardization
+│   ├── validators/         # NextNode business validators
+│   │   ├── common.ts       # API keys, emails, slugs, etc.
+│   │   └── domain.ts       # Complete domain objects
+│   ├── patterns/           # Advanced validation patterns
+│   │   ├── conditional.ts  # Conditional validation logic
+│   │   ├── async.ts        # Async validation with caching
+│   │   └── transforms.ts   # Data transformation utilities
+│   ├── utils/              # Utility functions (logger)
+│   ├── __tests__/          # Comprehensive test suite
+│   └── index.ts            # Main export file with ArkType re-export
+├── package.json            # Package configuration with ArkType dependency
 ├── tsconfig.json           # TypeScript config (development)
 ├── tsconfig.build.json     # TypeScript config (build)
-├── vitest.config.ts        # Test configuration
+├── vitest.config.ts        # Test configuration with path aliases
 ├── eslint.config.mjs       # ESLint configuration
-├── biome.json              # Formatting configuration
-└── template_config.json    # Template generation config
+└── biome.json              # Formatting configuration
 ```
 
 ## Development Commands
@@ -152,12 +159,75 @@ The `template_config.json` defines replaceable variables:
 
 ### Production Dependencies
 - **@nextnode/logger**: Lightweight logging library with scope-based organization
-- Add other production dependencies based on library functionality  
-- Consider peer dependencies for framework integrations
+- **arktype**: Ultra-fast runtime type validation library (20x faster than Zod)
+- Zero other dependencies for maximum compatibility and performance
+
+## Validation Architecture
+
+### Core Design Principles
+
+1. **Not a wrapper** - Adds real value to ArkType, doesn't just wrap it
+2. **NextNode-specific** - Business logic validators for NextNode domain objects
+3. **Environment agnostic** - No Node.js or browser dependencies
+4. **Standardized errors** - Consistent format: `{ key, reason, path?, value? }`
+5. **Consumer i18n** - Error keys only, no embedded internationalization
+
+### Validation Layers
+
+#### 1. Common Validators (`validators/common.ts`)
+Business-specific validators with NextNode rules:
+```typescript
+// API Key validation with NextNode format
+NextNodeAPIKey('nk_1234567890abcdef1234567890abcdef')
+
+// Email validation with business rules (no disposable domains)
+NextNodeEmail('user@company.com') 
+
+// Project slug validation with NextNode conventions
+NextNodeProjectSlug('my-awesome-project')
+```
+
+#### 2. Domain Objects (`validators/domain.ts`)
+Complete business objects for NextNode ecosystem:
+```typescript
+// User object with all NextNode user fields
+NextNodeUser({ id, username, email, role, status })
+
+// Project object with NextNode project structure
+NextNodeProject({ id, name, slug, description, visibility })
+```
+
+#### 3. Advanced Patterns (`patterns/`)
+- **Conditional**: Field-dependent validation logic
+- **Async**: Database/API validation with caching
+- **Transforms**: Data cleaning and normalization
+
+## Error Handling System
+
+Standardized error format across all NextNode projects:
+
+```typescript
+type ValidationError = {
+  key: ValidationErrorCode    // For i18n lookup by consumer
+  reason: string             // Technical description for debugging
+  path?: string              // Field path in nested objects
+  value?: unknown           // The value that failed validation
+}
+
+type ValidationResult<T> = 
+  | { success: true; data: T }
+  | { success: false; errors: ValidationError[] }
+```
+
+### Error Keys
+Predefined error codes for consistent handling:
+- `INVALID_EMAIL`, `INVALID_API_KEY`, `INVALID_UUID`
+- `REQUIRED_FIELD`, `FIELD_TOO_SHORT`, `FIELD_TOO_LONG`
+- `ASYNC_VALIDATION_FAILED`, `CONDITIONAL_VALIDATION_FAILED`
 
 ## Logging System
 
-The template includes a comprehensive logging system using `@nextnode/logger` with NextNode-specific conventions.
+Includes logging for validation operations using `@nextnode/logger`:
 
 ### Logger Structure
 
@@ -334,15 +404,77 @@ project-generator new library my-awesome-library
 - **TypeScript**: 5.0+ for modern language features
 - **Git**: For version control and hooks
 
-## Migration Notes
+## Usage Patterns
 
-This template incorporates lessons learned from:
-- **@nextnode/config-manager**: Advanced TypeScript patterns, automated type generation
-- **@nextnode/logger**: Clean architecture, zero-dependency design
-- **Modern CI/CD**: Automated version management and publishing workflows
+### Basic Validation
+```typescript
+import { NextNodeAPIKey, NextNodeEmail } from '@nextnode/validation'
 
-### From Older Templates
-- Updated to Node 24 from Node 20
-- New release workflow system replacing single release.yml
-- Enhanced TypeScript strict mode settings
-- Updated dependency versions and tooling
+// Direct ArkType usage - throws on invalid
+const apiKey = NextNodeAPIKey('nk_1234...') // Valid key
+
+// NextNode format - returns result object
+const result = validateWithNextNodeFormat(NextNodeEmail, 'invalid')
+if (!result.success) {
+  result.errors.forEach(err => console.log(err.key, err.reason))
+}
+```
+
+### Advanced Patterns
+```typescript
+import { 
+  requireAtLeastOne, 
+  validateUniqueUsername,
+  StringTransforms 
+} from '@nextnode/validation'
+
+// Conditional validation
+const contactValidator = requireAtLeastOne('email', 'phone')
+
+// Async validation with caching
+const usernameResult = await validateUniqueUsername('john_doe')
+
+// Data transformation
+const slug = StringTransforms.slugify('Hello World!')
+```
+
+### Custom Validators
+```typescript
+import { type, createValidationError } from '@nextnode/validation'
+
+// Direct ArkType usage for custom business logic
+const CustomValidator = type('string').narrow(s => {
+  return s.startsWith('custom_') && s.length >= 10
+})
+```
+
+## Design Decisions
+
+### Why ArkType?
+- **Performance**: 20x faster than Zod, 2000x faster than Yup
+- **DX**: 1:1 TypeScript mapping with excellent inference
+- **Size**: Lightweight with tree-shaking support
+- **Future-proof**: Built on set theory, extensible architecture
+
+### Why Not Just Use ArkType Directly?
+- **Business Logic**: NextNode-specific validation rules
+- **Error Standardization**: Consistent format across all projects
+- **Advanced Patterns**: Conditional, async, transform utilities
+- **Domain Knowledge**: Pre-built validators for NextNode objects
+
+### Error Format Rationale
+- **Key-only errors**: Consumer handles i18n, no bloat
+- **Structured data**: `{ key, reason, path?, value? }` for debugging
+- **Consistent format**: Same across all NextNode validation
+
+## Integration Notes
+
+This library incorporates patterns from other NextNode libraries:
+- **@nextnode/logger**: Logging conventions and structure
+- **@nextnode/config-manager**: TypeScript strict patterns
+- **ArkType ecosystem**: Latest validation performance and DX
+
+### Migration from Other Validators
+- **From Zod**: Similar API but much faster, better inference
+- **From Joi**: More TypeScript-friendly, environment agnostic
+- **From Yup**: Significantly better performance and types

@@ -36,7 +36,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@nextnode/logger": "^0.2.4"
+    "@nextnode/logger": "^0.2.4",
+    "arktype": "^2.1.22"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.3",
