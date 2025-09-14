@@ -2,7 +2,7 @@
 "@nextnode/validation": major
 ---
 
-Complete implementation of NextNode validation library powered by ArkType
+Initial release of NextNode validation library powered by ArkType
 
 ## 🚀 New Features
 
@@ -71,25 +71,30 @@ Complete implementation of NextNode validation library powered by ArkType
 - ESLint integration with @nextnode/eslint-plugin
 - Automated CI/CD with changesets and NPM publishing
 
-## 📋 Breaking Changes
+## 📋 Initial Release
 
-This is a complete rewrite from the library template:
-- Removed generic client functionality
-- Added ArkType dependency
-- Implemented NextNode-specific validation logic
-- Changed error format to standardized NextNode format
-- Added environment-agnostic design requirements
+This is the initial release of @nextnode/validation with a complete validation system:
+- Built on ArkType for ultra-fast runtime validation
+- NextNode-specific business validators and domain objects
+- Advanced validation patterns (conditional, async, transforms)
+- Standardized error format for consistent handling
+- Environment-agnostic design for universal compatibility
 
-## 🔧 Migration Guide
-
-This package is now a validation library, not a client library:
+## 🔧 Usage
 
 ```typescript
-// Before (template)
-import { NextnodeClient } from '@nextnode/validation'
+import { NextNodeAPIKey, NextNodeEmail, NextNodeUser } from '@nextnode/validation'
 
-// After (validation library)  
-import { NextNodeAPIKey, NextNodeEmail } from '@nextnode/validation'
+// Basic validation
+const apiKey = NextNodeAPIKey('nk_1234567890abcdef1234567890abcdef')
+const email = NextNodeEmail('user@company.com')
+
+// Domain object validation
+const user = NextNodeUser({
+  id: '550e8400-e29b-41d4-a716-446655440000',
+  username: 'john_doe',
+  email: 'john@company.com'
+})
 ```
 
 ## 📚 Documentation
