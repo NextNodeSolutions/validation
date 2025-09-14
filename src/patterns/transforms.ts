@@ -5,8 +5,10 @@
  */
 
 import { type } from 'arktype'
-import type { ValidationResult } from '@/types/index.js'
+
 import { createSuccessResult } from '@/errors/formatter.js'
+
+import type { ValidationResult } from '@/types/index.js'
 
 /**
  * String transformation utilities
@@ -15,9 +17,7 @@ export const StringTransforms = {
   /**
    * Trims whitespace and converts to lowercase
    */
-  normalize: type('string').narrow((s): s is string => {
-    return typeof s === 'string'
-  }).pipe(s => s.trim().toLowerCase()),
+  normalize: type('string').narrow((s): s is string => typeof s === 'string').pipe(s => s.trim().toLowerCase()),
 
   /**
    * Trims whitespace only
@@ -300,8 +300,7 @@ export const ObjectTransforms = {
 export const transformThenValidate = <T, U>(
   transform: (value: T) => U,
   validator: any
-) => {
-  return (value: T): ValidationResult<U> => {
+) => (value: T): ValidationResult<U> => {
     try {
       const transformed = transform(value)
       const result = validator(transformed)
@@ -330,7 +329,6 @@ export const transformThenValidate = <T, U>(
       }
     }
   }
-}
 
 /**
  * NextNode form data transformer

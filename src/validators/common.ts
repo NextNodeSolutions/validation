@@ -5,8 +5,10 @@
  */
 
 import { type } from 'arktype'
-import type { ValidationResult } from '@/types/index.js'
+
 import { createFailureResult, createSuccessResult, createValidationError } from '@/errors/formatter.js'
+
+import type { ValidationResult } from '@/types/index.js'
 
 /**
  * NextNode API Key validator
@@ -101,8 +103,7 @@ export const NextNodeSemVer = type('string').narrow((version): version is string
  * - No localhost in production context
  * - Port restrictions
  */
-export const createNextNodeURL = (options: { allowHttp?: boolean; allowLocalhost?: boolean } = {}) => {
-  return type('string').narrow((url): url is string => {
+export const createNextNodeURL = (options: { allowHttp?: boolean; allowLocalhost?: boolean } = {}) => type('string').narrow((url): url is string => {
     try {
       const parsed = new URL(url)
       
@@ -134,7 +135,6 @@ export const createNextNodeURL = (options: { allowHttp?: boolean; allowLocalhost
       return false
     }
   })
-}
 
 /**
  * UUID validator (v4 only for consistency)

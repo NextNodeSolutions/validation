@@ -5,9 +5,10 @@
  * with built-in caching to avoid redundant requests
  */
 
-import type { AsyncValidator, AsyncValidatorConfig, ValidationResult } from '@/types/index.js'
 import { createFailureResult, createSuccessResult, createValidationError } from '@/errors/formatter.js'
 import { coreLogger } from '@/utils/logger.js'
+
+import type { AsyncValidator, AsyncValidatorConfig, ValidationResult } from '@/types/index.js'
 
 /**
  * Simple in-memory cache for async validation results
@@ -195,8 +196,7 @@ export const validateEmailDomain = withCache(async (email: string): Promise<Vali
 /**
  * Validates that a project slug is unique within organization
  */
-export const validateUniqueProjectSlug = (organizationId: string) => {
-  return withCache(async (slug: string): Promise<ValidationResult<string>> => {
+export const validateUniqueProjectSlug = (organizationId: string) => withCache(async (slug: string): Promise<ValidationResult<string>> => {
     // Simulate API call to check slug uniqueness within organization
     await new Promise(resolve => setTimeout(resolve, 75))
     
@@ -220,7 +220,6 @@ export const validateUniqueProjectSlug = (organizationId: string) => {
     cacheTtl: 5 * 60 * 1000, // Cache for 5 minutes
     cacheKeyFn: (slug) => `project-slug:${organizationId}:${slug}`
   })
-}
 
 /**
  * Validates API key permissions against user's actual permissions
@@ -311,8 +310,7 @@ export const validateWebhookURL = withCache(async (url: string): Promise<Validat
  */
 export const combineAsyncValidators = <T>(
   validators: AsyncValidator<T>[]
-): AsyncValidator<T> => {
-  return async (value: T): Promise<ValidationResult<T>> => {
+): AsyncValidator<T> => async (value: T): Promise<ValidationResult<T>> => {
     const results = await Promise.all(
       validators.map(validator => validator(value))
     )
@@ -327,7 +325,6 @@ export const combineAsyncValidators = <T>(
     
     return createSuccessResult(value)
   }
-}
 
 /**
  * Utility to clear validation cache
@@ -340,9 +337,7 @@ export const clearValidationCache = (): void => {
 /**
  * Utility to get cache statistics
  */
-export const getCacheStats = () => {
-  return {
+export const getCacheStats = () => ({
     size: globalCache.size(),
     maxSize: 1000 // From ValidationCache constructor
-  }
-}
+  })

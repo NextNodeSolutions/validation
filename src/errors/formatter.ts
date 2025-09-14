@@ -132,19 +132,15 @@ export const formatErrorSummary = (errors: ValidationError[]): string => {
 /**
  * Extracts all error keys for i18n lookup
  */
-export const extractErrorKeys = (errors: ValidationError[]): ValidationErrorCode[] => {
-  return errors.map(error => error.key)
-}
+export const extractErrorKeys = (errors: ValidationError[]): ValidationErrorCode[] => errors.map(error => error.key)
 
 /**
  * Groups errors by their keys
  */
-export const groupErrorsByKey = (errors: ValidationError[]): Record<ValidationErrorCode, ValidationError[]> => {
-  return errors.reduce((acc, error) => {
+export const groupErrorsByKey = (errors: ValidationError[]): Record<ValidationErrorCode, ValidationError[]> => errors.reduce((acc, error) => {
     if (!acc[error.key]) {
       acc[error.key] = []
     }
     acc[error.key].push(error)
     return acc
   }, {} as Record<ValidationErrorCode, ValidationError[]>)
-}

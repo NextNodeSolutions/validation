@@ -5,8 +5,10 @@
  */
 
 import { type } from 'arktype'
-import type { ValidationResult, ValidationError } from '@/types/index.js'
+
 import { createFailureResult, createSuccessResult, createValidationError } from '@/errors/formatter.js'
+
+import type { ValidationResult, ValidationError } from '@/types/index.js'
 
 /**
  * Validates a field only if a condition is met
@@ -15,8 +17,7 @@ export const validateIf = <T>(
   condition: (data: any) => boolean,
   validator: any,
   fieldPath: string
-) => {
-  return (data: any): ValidationResult<T> => {
+) => (data: any): ValidationResult<T> => {
     if (!condition(data)) {
       // Condition not met, validation passes
       return createSuccessResult(data)
@@ -38,15 +39,13 @@ export const validateIf = <T>(
     
     return createSuccessResult(data)
   }
-}
 
 /**
  * Validates that at least one of the specified fields is present
  */
 export const requireAtLeastOne = <T extends Record<string, any>>(
   ...fieldPaths: (keyof T)[]
-) => {
-  return (data: T): ValidationResult<T> => {
+) => (data: T): ValidationResult<T> => {
     const hasAtLeastOne = fieldPaths.some(path => {
       const value = getNestedValue(data, path as string)
       return value !== undefined && value !== null && value !== ''
@@ -64,15 +63,13 @@ export const requireAtLeastOne = <T extends Record<string, any>>(
     
     return createSuccessResult(data)
   }
-}
 
 /**
  * Validates that only one of the specified fields is present
  */
 export const requireExactlyOne = <T extends Record<string, any>>(
   ...fieldPaths: (keyof T)[]
-) => {
-  return (data: T): ValidationResult<T> => {
+) => (data: T): ValidationResult<T> => {
     const presentFields = fieldPaths.filter(path => {
       const value = getNestedValue(data, path as string)
       return value !== undefined && value !== null && value !== ''
@@ -100,7 +97,6 @@ export const requireExactlyOne = <T extends Record<string, any>>(
     
     return createSuccessResult(data)
   }
-}
 
 /**
  * Validates field dependencies (if field A is present, field B must be present)
@@ -108,8 +104,7 @@ export const requireExactlyOne = <T extends Record<string, any>>(
 export const requireWhen = <T extends Record<string, any>>(
   dependentField: keyof T,
   requiredField: keyof T
-) => {
-  return (data: T): ValidationResult<T> => {
+) => (data: T): ValidationResult<T> => {
     const dependentValue = getNestedValue(data, dependentField as string)
     const requiredValue = getNestedValue(data, requiredField as string)
     
@@ -128,7 +123,6 @@ export const requireWhen = <T extends Record<string, any>>(
     
     return createSuccessResult(data)
   }
-}
 
 /**
  * Validates based on enum/string value of another field
@@ -136,8 +130,7 @@ export const requireWhen = <T extends Record<string, any>>(
 export const validateBasedOnField = <T extends Record<string, any>>(
   conditionField: keyof T,
   validators: Record<string, any>
-) => {
-  return (data: T): ValidationResult<T> => {
+) => (data: T): ValidationResult<T> => {
     const conditionValue = getNestedValue(data, conditionField as string)
     
     if (typeof conditionValue !== 'string') {
@@ -172,7 +165,6 @@ export const validateBasedOnField = <T extends Record<string, any>>(
     
     return createSuccessResult(data)
   }
-}
 
 /**
  * NextNode-specific conditional validators
@@ -233,15 +225,13 @@ export const validateAPIKeyPermissions = (data: any): ValidationResult<any> => {
   const allowedPermissions = scopePermissions[scope] || []
   
   // Check if all permissions are allowed for this scope
-  const invalidPermissions = permissions.filter((perm: string) => {
-    return !allowedPermissions.some(allowed => {
+  const invalidPermissions = permissions.filter((perm: string) => !allowedPermissions.some(allowed => {
       if (allowed.endsWith('*')) {
         const prefix = allowed.slice(0, -1)
         return perm.startsWith(prefix)
       }
       return allowed === perm
-    })
-  })
+    }))
   
   if (invalidPermissions.length > 0) {
     return createFailureResult([
@@ -260,8 +250,4 @@ export const validateAPIKeyPermissions = (data: any): ValidationResult<any> => {
 /**
  * Helper function to get nested object values by path
  */
-const getNestedValue = (obj: any, path: string): any => {
-  return path.split('.').reduce((current, key) => {
-    return current && current[key] !== undefined ? current[key] : undefined
-  }, obj)
-}
+const getNestedValue = (obj: any, path: string): any => path.split('.').reduce((current, key) => current && current[key] !== undefined ? current[key] : undefined, obj)
