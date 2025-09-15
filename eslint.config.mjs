@@ -5,4 +5,10 @@ export default [
 	{
 		ignores: ['dist/**/*', 'coverage/**/*'],
 	},
+	{
+		files: ['vitest.config.ts', '*.config.*'],
+		rules: {
+			// Allow config files to have flexible rules
+		},
+	},
 ]

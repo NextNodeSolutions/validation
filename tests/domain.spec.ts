@@ -11,7 +11,7 @@ import {
 	NextNodePackage,
 	NextNodeEnvironment,
 	NextNodeOrganization,
-} from '../validators/domain.js'
+} from '@/validators/domain.js'
 
 describe('NextNode Domain Validators', () => {
 	describe('NextNodeUser', () => {

@@ -11,25 +11,25 @@ import {
 	requireWhen,
 	validateProjectSettings,
 	validateAPIKeyPermissions,
-} from '../patterns/conditional.js'
+} from '@/patterns/conditional.js'
 import {
 	withCache,
 	validateUniqueUsername,
 	validateEmailDomain,
 	combineAsyncValidators,
-	clearValidationCacheSilent,
-} from '../patterns/async.js'
+	clearValidationCache,
+} from '@/patterns/async.js'
 import {
 	StringTransforms,
 	EmailTransforms,
 	NextNodeTransforms,
 	transformThenValidate,
 	transformFormData,
-} from '../patterns/transforms.js'
+} from '@/patterns/transforms.js'
 
 describe('Validation Patterns', () => {
 	beforeEach(() => {
-		clearValidationCacheSilent()
+		clearValidationCache()
 	})
 
 	describe('Conditional Validation', () => {

@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest'
 
-import { deepMerge, isObject, delay } from '../utils/index.js'
+import { deepMerge, isObject, delay } from '@/utils/index.js'
 
 describe('Utils', () => {
 	describe('deepMerge', () => {

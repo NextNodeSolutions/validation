@@ -13,7 +13,7 @@ import {
 	NextNodeUUID,
 	createNextNodeURL,
 	validateWithNextNodeFormat,
-} from '../validators/common.js'
+} from '@/validators/common.js'
 
 describe('NextNode Common Validators', () => {
 	describe('NextNodeAPIKey', () => {

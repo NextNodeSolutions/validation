@@ -1,5 +1,7 @@
 {
-	"*.{js,jsx,ts,tsx}": ["pnpm lint"],
+	"*.{js,jsx,ts,tsx}": [
+		"pnpm eslint --max-warnings 0 --fix --no-warn-ignored"
+	],
 	"package.json": ["better-sort-package-json"],
 	"*": ["pnpm format"]
 }

@@ -387,17 +387,10 @@ export const combineAsyncValidators =
 	}
 
 /**
- * Utility to clear validation cache silently (for tests)
- */
-export const clearValidationCacheSilent = (): void => {
-	globalCache.clear()
-}
-
-/**
  * Utility to clear validation cache
  */
 export const clearValidationCache = (): void => {
-	clearValidationCacheSilent()
+	globalCache.clear()
 	coreLogger.info('Validation cache cleared')
 }
 

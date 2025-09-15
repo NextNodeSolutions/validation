@@ -12,7 +12,7 @@ import {
 	logDebug,
 	logApiResponse,
 	logError,
-} from '../utils/logger.js'
+} from '@/utils/logger.js'
 
 // Mock @nextnode/logger
 vi.mock('@nextnode/logger', () => ({
