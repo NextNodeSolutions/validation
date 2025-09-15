@@ -17,7 +17,7 @@ import {
 	validateUniqueUsername,
 	validateEmailDomain,
 	combineAsyncValidators,
-	clearValidationCache,
+	clearValidationCacheSilent,
 } from '../patterns/async.js'
 import {
 	StringTransforms,
@@ -29,7 +29,7 @@ import {
 
 describe('Validation Patterns', () => {
 	beforeEach(() => {
-		clearValidationCache()
+		clearValidationCacheSilent()
 	})
 
 	describe('Conditional Validation', () => {
