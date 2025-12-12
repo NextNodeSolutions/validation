@@ -32,7 +32,7 @@
 		"format": "biome check --write --no-errors-on-unmatched .",
 		"lint": "eslint . --max-warnings 0 --fix",
 		"lint-staged": "lint-staged",
-		"lint:fix": "eslint . --max-warnings 0 --fix",
+		"lint:fix": "eslint . --max-warnings 0 --fix --no-warn-ignored",
 		"prepare": "husky",
 		"prepublishOnly": "pnpm build",
 		"test": "vitest run",
