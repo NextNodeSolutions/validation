@@ -30,7 +30,7 @@ export const creditCard = type('string').narrow((cardNumber, ctx) => {
 	let isEven = false
 
 	for (let i = cleaned.length - 1; i >= 0; i--) {
-		let digit = parseInt(cleaned[i]!, 10)
+		let digit = Number.parseInt(cleaned[i]!, 10)
 
 		if (isEven) {
 			digit *= 2

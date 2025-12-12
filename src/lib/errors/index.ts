@@ -2,7 +2,8 @@
  * Error handling exports
  */
 
-export { ErrorCodes, type ErrorCode } from './codes.js'
+export { type ErrorCode, ErrorCodes } from './codes.js'
+export { createErrorFormatter, DefaultErrorFormatter } from './formatter.js'
 export type {
 	ErrorFormatter,
 	ErrorFormatterConfig,
@@ -10,4 +11,3 @@ export type {
 	MessageTemplate,
 	ValidationIssue,
 } from './types.js'
-export { createErrorFormatter, DefaultErrorFormatter } from './formatter.js'

@@ -2,16 +2,16 @@
  * Logger functionality tests
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
-	logger,
 	apiLogger,
 	coreLogger,
-	utilsLogger,
-	logDebug,
 	logApiResponse,
+	logDebug,
 	logError,
+	logger,
+	utilsLogger,
 } from '../utils/logger.js'
 
 // Mock @nextnode/logger

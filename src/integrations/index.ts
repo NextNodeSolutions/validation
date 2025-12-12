@@ -9,5 +9,5 @@
  * - '@nextnode/validation/middleware/fastify'
  */
 
-export * from './react-hook-form/index.js'
 export * from './middleware/index.js'
+export * from './react-hook-form/index.js'

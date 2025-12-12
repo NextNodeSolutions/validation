@@ -22,10 +22,10 @@
  * ```
  */
 
-import { createErrorResponse, validateData } from './core.js'
-
 import type { Type } from 'arktype'
+
 import type { Schema, ValidationIssue } from '../../lib/core/types.js'
+import { createErrorResponse, validateData } from './core.js'
 import type { ValidationTarget } from './types.js'
 
 /**

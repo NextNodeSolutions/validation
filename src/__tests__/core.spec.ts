@@ -2,14 +2,14 @@
  * Core validation engine tests
  */
 
-import { describe, it, expect } from 'vitest'
 import { type } from 'arktype'
+import { describe, expect, it } from 'vitest'
 
 import {
-	v,
 	createValidationEngine,
 	DefaultErrorFormatter,
 	ErrorCodes,
+	v,
 } from '../lib/index.js'
 
 describe('Validation Engine', () => {

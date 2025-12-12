@@ -3,16 +3,16 @@
  * Shared validation logic used by all framework adapters
  */
 
-import { type, type Type } from 'arktype'
-
-import { DefaultErrorFormatter } from '../../lib/errors/formatter.js'
-import { coreLogger } from '../../utils/logger.js'
+import type { Type, } from 'arktype'
+import { type } from 'arktype'
 
 import type {
 	Schema,
 	ValidationIssue,
 	ValidationResult,
 } from '../../lib/core/types.js'
+import { DefaultErrorFormatter } from '../../lib/errors/formatter.js'
+import { coreLogger } from '../../utils/logger.js'
 import type { ValidationErrorResponse } from './types.js'
 
 const errorFormatter = new DefaultErrorFormatter()

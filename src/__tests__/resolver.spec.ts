@@ -2,8 +2,8 @@
  * React Hook Form resolver tests
  */
 
-import { describe, it, expect } from 'vitest'
 import { type } from 'arktype'
+import { describe, expect, it } from 'vitest'
 
 import { arktypeResolver } from '../integrations/react-hook-form/resolver.js'
 import { v } from '../lib/core/engine.js'

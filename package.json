@@ -1,123 +1,120 @@
 {
-	"name": "@nextnode/validation",
-	"version": "1.0.0",
-	"description": "A TypeScript validation library powered by ArkType for comprehensive input validation on both frontend and backend in NextNode projects",
-	"keywords": [
-		"arktype",
-		"backend",
-		"frontend",
-		"input-validation",
-		"nextnode",
-		"schema",
-		"type-safe",
-		"typescript",
-		"validation"
-	],
-	"license": "MIT",
-	"author": "NextNodeSolutions",
-	"files": [
-		"CHANGELOG.md",
-		"README.md",
-		"dist/**/*"
-	],
-	"main": "./dist/index.js",
-	"scripts": {
-		"prebuild": "pnpm clean",
-		"build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-		"changeset": "changeset",
-		"changeset:publish": "changeset publish",
-		"changeset:version": "changeset version",
-		"clean": "rm -rf dist",
-		"commitlint": "commitlint --edit",
-		"format": "biome check --write --no-errors-on-unmatched .",
-		"lint": "eslint . --max-warnings 0 --fix",
-		"lint-staged": "lint-staged",
-		"lint:fix": "eslint . --max-warnings 0 --fix --no-warn-ignored",
-		"prepare": "husky",
-		"prepublishOnly": "pnpm build",
-		"test": "vitest run",
-		"test:coverage": "vitest run --coverage",
-		"test:ui": "vitest --ui",
-		"test:watch": "vitest",
-		"type-check": "tsc --noEmit"
-	},
-	"dependencies": {
-		"@nextnode/logger": "^0.2.4",
-		"arktype": "^2.1.28"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.2.3",
-		"@changesets/changelog-github": "^0.5.1",
-		"@changesets/cli": "^2.29.4",
-		"@commitlint/cli": "^19.2.1",
-		"@commitlint/config-conventional": "^19.1.0",
-		"@nextnode/eslint-plugin": "^1.2.0",
-		"@types/node": "^22.0.0",
-		"@vitest/coverage-v8": "^3.1.4",
-		"better-sort-package-json": "^1.1.1",
-		"eslint": "^9.27.0",
-		"husky": "^9.0.11",
-		"lint-staged": "^15.2.2",
-		"tsc-alias": "^1.8.16",
-		"typescript": "^5.0.0",
-		"vitest": "^3.1.4"
-	},
-	"peerDependencies": {
-		"eslint": "^9.22.0",
-		"express": "^4.0.0 || ^5.0.0",
-		"fastify": "^4.0.0 || ^5.0.0",
-		"hono": "^4.0.0",
-		"react-hook-form": "^7.0.0"
-	},
-	"peerDependenciesMeta": {
-		"express": {
-			"optional": true
-		},
-		"fastify": {
-			"optional": true
-		},
-		"hono": {
-			"optional": true
-		},
-		"react-hook-form": {
-			"optional": true
-		}
-	},
-	"engines": {
-		"node": ">=24.0.0"
-	},
-	"packageManager": "pnpm@10.11.0",
-	"type": "module",
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
-		},
-		"./react-hook-form": {
-			"import": "./dist/integrations/react-hook-form/index.js",
-			"types": "./dist/integrations/react-hook-form/index.d.ts"
-		},
-		"./middleware": {
-			"import": "./dist/integrations/middleware/index.js",
-			"types": "./dist/integrations/middleware/index.d.ts"
-		},
-		"./middleware/hono": {
-			"import": "./dist/integrations/middleware/hono.js",
-			"types": "./dist/integrations/middleware/hono.d.ts"
-		},
-		"./middleware/express": {
-			"import": "./dist/integrations/middleware/express.js",
-			"types": "./dist/integrations/middleware/express.d.ts"
-		},
-		"./middleware/fastify": {
-			"import": "./dist/integrations/middleware/fastify.js",
-			"types": "./dist/integrations/middleware/fastify.d.ts"
-		},
-		"./schemas": {
-			"import": "./dist/lib/schemas/index.js",
-			"types": "./dist/lib/schemas/index.d.ts"
-		}
-	},
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts"
+  "name": "@nextnode/validation",
+  "version": "1.0.0",
+  "description": "A TypeScript validation library powered by ArkType for comprehensive input validation on both frontend and backend in NextNode projects",
+  "keywords": [
+    "arktype",
+    "backend",
+    "frontend",
+    "input-validation",
+    "nextnode",
+    "schema",
+    "type-safe",
+    "typescript",
+    "validation"
+  ],
+  "license": "MIT",
+  "author": "NextNodeSolutions",
+  "files": [
+    "CHANGELOG.md",
+    "README.md",
+    "dist/**/*"
+  ],
+  "main": "./dist/index.js",
+  "scripts": {
+    "prebuild": "pnpm clean",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "changeset": "changeset",
+    "changeset:publish": "changeset publish",
+    "changeset:version": "changeset version",
+    "clean": "rm -rf dist",
+    "commitlint": "commitlint --edit",
+    "format": "biome check --write --no-errors-on-unmatched .",
+    "lint": "biome check --write --no-errors-on-unmatched .",
+    "lint-staged": "lint-staged",
+    "prepare": "husky",
+    "prepublishOnly": "pnpm build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nextnode/logger": "^0.3.0",
+    "arktype": "^2.1.28"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.4",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@nextnode/standards": "^2.1.3",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^3.1.4",
+    "better-sort-package-json": "^1.1.1",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.0.0",
+    "vitest": "^3.1.4"
+  },
+  "peerDependencies": {
+    "express": "^4.0.0 || ^5.0.0",
+    "fastify": "^4.0.0 || ^5.0.0",
+    "hono": "^4.0.0",
+    "react-hook-form": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    },
+    "react-hook-form": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "packageManager": "pnpm@10.11.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./react-hook-form": {
+      "import": "./dist/integrations/react-hook-form/index.js",
+      "types": "./dist/integrations/react-hook-form/index.d.ts"
+    },
+    "./middleware": {
+      "import": "./dist/integrations/middleware/index.js",
+      "types": "./dist/integrations/middleware/index.d.ts"
+    },
+    "./middleware/hono": {
+      "import": "./dist/integrations/middleware/hono.js",
+      "types": "./dist/integrations/middleware/hono.d.ts"
+    },
+    "./middleware/express": {
+      "import": "./dist/integrations/middleware/express.js",
+      "types": "./dist/integrations/middleware/express.d.ts"
+    },
+    "./middleware/fastify": {
+      "import": "./dist/integrations/middleware/fastify.js",
+      "types": "./dist/integrations/middleware/fastify.d.ts"
+    },
+    "./schemas": {
+      "import": "./dist/lib/schemas/index.js",
+      "types": "./dist/lib/schemas/index.d.ts"
+    }
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
 }

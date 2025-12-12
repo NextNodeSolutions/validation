@@ -21,10 +21,10 @@
  * ```
  */
 
-import { createErrorResponse, validateData } from './core.js'
-
 import type { Type } from 'arktype'
+
 import type { Schema, ValidationIssue } from '../../lib/core/types.js'
+import { createErrorResponse, validateData } from './core.js'
 import type { ValidationTarget } from './types.js'
 
 /**
@@ -38,7 +38,7 @@ export interface HonoValidatorOptions {
 	onError?: (
 		issues: readonly ValidationIssue[],
 		c: HonoContext,
-	) => Response | void
+	) => Response | undefined
 }
 
 /**
@@ -62,7 +62,7 @@ interface HonoContext {
 type HonoMiddleware = (
 	c: HonoContext,
 	next: () => Promise<void>,
-) => Promise<Response | void> | void
+) => Promise<Response | undefined> | undefined
 
 /**
  * Get request data based on target
@@ -94,7 +94,7 @@ export const honoValidator =
 		schema: Type<T> | Schema<T>,
 		options: HonoValidatorOptions = {},
 	): HonoMiddleware =>
-	async (c, next): Promise<Response | void> => {
+	async (c, next): Promise<Response | undefined> => {
 		const data = await getRequestData(c, target)
 		const result = validateData(schema, data)
 

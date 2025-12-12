@@ -3,6 +3,7 @@
  */
 
 import type { Type } from 'arktype'
+
 import type { Schema, ValidationIssue } from '../../lib/core/types.js'
 
 /**

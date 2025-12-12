@@ -2,45 +2,45 @@
  * Pre-built schemas tests
  */
 
-import { describe, it, expect } from 'vitest'
 import { type } from 'arktype'
+import { describe, expect, it } from 'vitest'
 
 import {
-	// Common
-	schemas,
-	email,
-	url,
-	uuid,
-	date,
-	json,
-	semver,
-	slug,
+	age,
 	// Auth
 	authSchemas,
-	strongPassword,
-	username,
-	loginSchema,
-	registerSchema,
+	creditCard,
+	currencyCode,
+	date,
+	email,
 	// Financial
 	financialSchemas,
-	creditCard,
-	price,
-	currencyCode,
-	// Network
-	networkSchemas,
-	ipv4,
-	ipv6,
 	hostname,
-	port,
-	macAddress,
 	// Identity
 	identitySchemas,
+	ipv4,
+	ipv6,
+	json,
+	loginSchema,
+	macAddress,
+	// Network
+	networkSchemas,
 	phoneE164,
 	phoneFlexible,
-	zipCodeUS,
+	port,
 	postalCodeFR,
+	price,
+	registerSchema,
+	// Common
+	schemas,
+	semver,
+	slug,
 	ssnUS,
-	age,
+	strongPassword,
+	url,
+	username,
+	uuid,
+	zipCodeUS,
 } from '../lib/schemas/index.js'
 
 describe('Pre-built Schemas', () => {

@@ -3,6 +3,7 @@
  */
 
 import type { Type } from 'arktype'
+
 import type { Schema } from '../../lib/core/types.js'
 
 /**

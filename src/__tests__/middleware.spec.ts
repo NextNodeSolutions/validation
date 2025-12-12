@@ -2,16 +2,16 @@
  * Server middleware tests
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { type } from 'arktype'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
-	validateData,
 	createErrorResponse,
+	validateData,
 } from '../integrations/middleware/core.js'
 import { expressValidator } from '../integrations/middleware/express.js'
 import { fastifyValidator } from '../integrations/middleware/fastify.js'
-import { honoValidator, getValidated } from '../integrations/middleware/hono.js'
+import { getValidated, honoValidator } from '../integrations/middleware/hono.js'
 import { v } from '../lib/core/engine.js'
 
 describe('Server Middleware', () => {

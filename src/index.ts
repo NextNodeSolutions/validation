@@ -21,9 +21,9 @@
  * ```
  */
 
+export type { Type } from 'arktype'
 // Re-export ArkType's type function for direct use
 export { type } from 'arktype'
-export type { Type } from 'arktype'
 
 // Core validation engine (includes types, schemas, and errors)
 export * from './lib/index.js'

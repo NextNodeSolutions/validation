@@ -3,11 +3,11 @@
  * Wraps ArkType with standardized interface and error formatting
  */
 
-import { type, type Type } from 'arktype'
+import type { Type, } from 'arktype'
+import { type } from 'arktype'
 
 import { coreLogger, logError } from '../../utils/logger.js'
 import { DefaultErrorFormatter } from '../errors/formatter.js'
-
 import type {
 	ErrorFormatter,
 	Schema,
@@ -107,7 +107,7 @@ export const createValidationEngine = (
 			meta?: SchemaMetadata,
 		): Schema<T> {
 			try {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				// biome-ignore lint/suspicious/noExplicitAny: ArkType requires flexible input types
 				const arkType = type(definition as any) as unknown as Type<T>
 				return createSchema(arkType, meta)
 			} catch (error) {
@@ -124,7 +124,7 @@ export const createValidationEngine = (
 			meta?: SchemaMetadata,
 		): Schema<T> {
 			try {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				// biome-ignore lint/suspicious/noExplicitAny: ArkType requires flexible input types
 				const arkType = type(definition as any) as unknown as Type<T>
 				return createSchema(arkType, meta)
 			} catch (error) {

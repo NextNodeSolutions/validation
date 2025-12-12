@@ -2,6 +2,23 @@
  * Pre-built validation schemas
  */
 
+export type { PasswordRequirements } from './auth.js'
+// Auth
+export {
+	apiKey,
+	authEmail,
+	authSchemas,
+	createApiKey,
+	createPasswordSchema,
+	jwtToken,
+	loginSchema,
+	passwordBasic,
+	passwordResetRequestSchema,
+	passwordResetSchema,
+	registerSchema,
+	strongPassword,
+	username,
+} from './auth.js'
 // Common
 export {
 	alphanumeric,
@@ -23,25 +40,6 @@ export {
 	url,
 	uuid,
 } from './common.js'
-
-// Auth
-export {
-	apiKey,
-	authEmail,
-	authSchemas,
-	createApiKey,
-	createPasswordSchema,
-	jwtToken,
-	loginSchema,
-	passwordBasic,
-	passwordResetRequestSchema,
-	passwordResetSchema,
-	registerSchema,
-	strongPassword,
-	username,
-} from './auth.js'
-export type { PasswordRequirements } from './auth.js'
-
 // Financial
 export {
 	amount,
@@ -54,6 +52,7 @@ export {
 	taxIdFR,
 	taxIdUS,
 } from './financial.js'
+
 // Note: percentage is already exported from common
 
 // Network
@@ -70,6 +69,7 @@ export {
 	port,
 	urlSlug,
 } from './network.js'
+
 // Note: url is already exported from common
 
 // Identity

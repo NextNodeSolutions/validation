@@ -2,9 +2,10 @@
  * Default error formatter - transforms ArkType errors to ValidationIssue format
  */
 
-import { ErrorCodes, type ErrorCode } from './codes.js'
-
 import type { ArkErrors } from 'arktype'
+
+import type { ErrorCode, } from './codes.js'
+import { ErrorCodes } from './codes.js'
 import type {
 	ErrorFormatter,
 	ErrorFormatterConfig,
@@ -63,6 +64,7 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		return arkError.path ?? []
 	}
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Error mapping requires many conditions
 	private mapErrorCode(error: unknown): string {
 		const arkError = error as {
 			code?: string
@@ -143,7 +145,7 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		const str = typeof actual === 'string' ? actual : JSON.stringify(actual)
 
 		if (str.length > this.config.maxActualLength) {
-			return str.substring(0, this.config.maxActualLength) + '...'
+			return `${str.substring(0, this.config.maxActualLength)}...`
 		}
 
 		return str

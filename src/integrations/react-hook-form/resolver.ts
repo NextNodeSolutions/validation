@@ -2,11 +2,11 @@
  * React Hook Form resolver for ArkType schemas
  */
 
-import { type, type Type } from 'arktype'
-
-import { DefaultErrorFormatter } from '../../lib/errors/formatter.js'
+import type { Type, } from 'arktype'
+import { type } from 'arktype'
 
 import type { Schema, ValidationIssue } from '../../lib/core/types.js'
+import { DefaultErrorFormatter } from '../../lib/errors/formatter.js'
 import type {
 	ArktypeResolverOptions,
 	FieldError,

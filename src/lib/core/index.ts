@@ -2,12 +2,12 @@
  * Core validation engine exports
  */
 
+export type { Infer } from './engine.js'
 export {
 	createValidationEngine,
-	v,
 	ValidationError,
+	v,
 } from './engine.js'
-export type { Infer } from './engine.js'
 export type {
 	ErrorFormatter,
 	Schema,
