@@ -1,13 +1,14 @@
 /**
  * @nextnode/validation
- * A TypeScript validation library powered by ArkType for comprehensive input validation on both frontend and backend in NextNode projects
+ * TypeScript validation library powered by ArkType
  */
 
-// Main library exports
-export * from './lib/core.js'
+// Re-export ArkType's type function for direct use
+export { type } from 'arktype'
+export type { Type } from 'arktype'
 
-// Type exports
-export type * from './types/index.js'
+// Core validation engine
+export * from './lib/index.js'
 
-// Utility exports
+// Utility exports (logger)
 export * from './utils/index.js'
