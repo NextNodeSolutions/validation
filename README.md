@@ -5,16 +5,26 @@ A TypeScript validation library powered by ArkType for comprehensive input valid
 ## Features
 
 - **ArkType-powered**: Full TypeScript type inference with string-based schema definitions
-- **Pre-built validators**: Email, URL, UUID, credit card, phone, and more
+- **Pre-built validators**: Email, URL, UUID, credit card, phone, passwords, and 50+ more
 - **React Hook Form integration**: Ready-to-use resolver
 - **Server middleware**: Hono, Express, and Fastify adapters
-- **Structured errors**: Path-based error format for i18n support
+- **Structured errors**: Path-based error format with error codes for i18n support
 - **Tree-shakeable**: Import only what you need
+- **Factory functions**: Create configurable validators (passwords, API keys, etc.)
 
 ## Installation
 
 ```bash
 pnpm add @nextnode/validation
+```
+
+**Peer dependencies** (install as needed):
+```bash
+# React Hook Form integration
+pnpm add react-hook-form
+
+# Server middleware
+pnpm add hono      # or express / fastify
 ```
 
 ## Quick Start
@@ -69,11 +79,11 @@ const data = schema.parse(input)
 
 ```typescript
 import {
-  schemas,           // Common: email, url, uuid, date, json
-  authSchemas,       // Auth: strongPassword, username, loginSchema
-  financialSchemas,  // Financial: creditCard, price, iban
-  networkSchemas,    // Network: ipv4, ipv6, port, hostname
-  identitySchemas    // Identity: phone, ssn, postalCode, age
+  schemas,           // Common: email, url, uuid, date, json, slug, semver, etc.
+  authSchemas,       // Auth: strongPassword, username, loginSchema, jwtToken, apiKey
+  financialSchemas,  // Financial: creditCard, price, iban, bic, currencyCode
+  networkSchemas,    // Network: ipv4, ipv6, port, hostname, macAddress, domain
+  identitySchemas    // Identity: phoneE164, ssnUS, postalCodeFR, age, birthDate
 } from '@nextnode/validation'
 
 // Use pre-built validators
@@ -86,6 +96,17 @@ const paymentSchema = type({
   amount: financialSchemas.price,
   cardNumber: financialSchemas.creditCard
 })
+
+// Use factory functions for configurable validators
+import { createPasswordSchema, createApiKey } from '@nextnode/validation'
+
+const customPassword = createPasswordSchema({
+  minLength: 12,
+  requireUppercase: true,
+  requireSpecialChars: true
+})
+
+const myApiKey = createApiKey('api')  // Validates api_XXXXXXXXXX...
 ```
 
 ## React Hook Form Integration
@@ -246,13 +267,26 @@ const passwordSchema = type('string >= 8').narrow((pwd, ctx) => {
 | Export | Description |
 |--------|-------------|
 | `type` | ArkType's type function for schema definitions |
-| `v` | Validation engine instance |
-| `schemas` | Common validators (email, url, uuid, etc.) |
-| `authSchemas` | Authentication schemas |
-| `financialSchemas` | Financial validators |
-| `networkSchemas` | Network validators |
-| `identitySchemas` | Identity validators |
-| `ErrorCodes` | Error code constants |
+| `Type` | ArkType's Type (for type annotations) |
+| `v` | Validation engine instance (`v.schema`, `v.define`, `v.object`) |
+| `createValidationEngine` | Factory to create custom engine with config |
+| `ValidationError` | Error class thrown by `parse()` |
+| `Infer` | Type utility to infer schema type |
+| `schemas` | Common validators (email, url, uuid, slug, semver, etc.) |
+| `authSchemas` | Authentication schemas (password, username, JWT, API keys) |
+| `financialSchemas` | Financial validators (credit card, IBAN, BIC, price) |
+| `networkSchemas` | Network validators (IP, port, hostname, MAC) |
+| `identitySchemas` | Identity validators (phone, SSN, postal codes, age) |
+| `ErrorCodes` | Error code constants for i18n |
+
+### Factory Functions
+
+| Export | Description |
+|--------|-------------|
+| `createPasswordSchema` | Create password validator with custom requirements |
+| `createApiKey` | Create API key validator with custom prefix |
+| `stringLength` | Create string length validator |
+| `numberRange` | Create number range validator |
 
 ### Sub-path Exports
 
@@ -265,21 +299,48 @@ const passwordSchema = type('string >= 8').narrow((pwd, ctx) => {
 | `@nextnode/validation/middleware/fastify` | Fastify middleware |
 | `@nextnode/validation/schemas` | Pre-built schemas only |
 
+### Pre-built Schema Reference
+
+**Common (`schemas`)**: `email`, `url`, `uuid`, `date`, `json`, `base64`, `alphanumeric`, `slug`, `semver`, `integer`, `positive`, `nonNegative`, `percentage`, `boolean`, `nonEmptyString`
+
+**Auth (`authSchemas`)**: `username`, `passwordBasic`, `strongPassword`, `authEmail`, `jwtToken`, `apiKey`, `loginSchema`, `registerSchema`, `passwordResetSchema`, `passwordResetRequestSchema`
+
+**Financial (`financialSchemas`)**: `creditCard`, `iban`, `bic`, `price`, `amount`, `currencyCode`, `taxIdUS`, `taxIdFR`
+
+**Network (`networkSchemas`)**: `ip`, `ipv4`, `ipv6`, `hostname`, `domain`, `port`, `macAddress`, `urlSlug`, `httpMethod`, `httpStatusCode`
+
+**Identity (`identitySchemas`)**: `phoneE164`, `phoneFlexible`, `zipCodeUS`, `postalCodeFR`, `postalCodeUK`, `postalCodeCA`, `ssnUS`, `ssnFR`, `age`, `birthDate`, `personName`, `singleName`, `gender`, `title`, `nationalId`, `passportNumber`
+
 ## Development
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Run tests
+# Run tests (119 tests)
 pnpm test
+
+# Watch mode
+pnpm test:watch
+
+# Coverage report
+pnpm test:coverage
 
 # Type check
 pnpm type-check
 
+# Lint and format
+pnpm lint
+pnpm format
+
 # Build
 pnpm build
 ```
+
+## Requirements
+
+- Node.js >= 24.0.0
+- pnpm 10+
 
 ## License
 

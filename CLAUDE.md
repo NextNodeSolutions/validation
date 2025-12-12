@@ -8,17 +8,18 @@ This file provides guidance to Claude Code when working with the validation libr
 
 **Key Features:**
 - ArkType-powered validation with full TypeScript type inference
-- Pre-built validators (email, URL, UUID, credit card, phone, etc.)
+- Pre-built validators (50+ schemas: email, URL, UUID, credit card, phone, passwords, etc.)
 - React Hook Form integration via `arktypeResolver`
 - Server middleware for Hono, Express, and Fastify
-- Structured error format for i18n support
+- Structured error format with error codes for i18n support
+- Factory functions for configurable validators
 - Tree-shakeable exports
 
 ## Project Structure
 
 ```
 src/
-├── index.ts                    # Main exports (type, v, schemas)
+├── index.ts                    # Main exports (type, Type, v, schemas)
 ├── lib/
 │   ├── core/
 │   │   ├── engine.ts           # Validation engine (v.schema, v.define, v.object)
@@ -30,11 +31,11 @@ src/
 │   │   ├── types.ts            # Error types
 │   │   └── index.ts
 │   ├── schemas/
-│   │   ├── common.ts           # email, url, uuid, date, json, base64
-│   │   ├── auth.ts             # password, username, login/register
-│   │   ├── financial.ts        # creditCard, price, iban, bic
-│   │   ├── network.ts          # ip, hostname, port, macAddress
-│   │   ├── identity.ts         # phone, ssn, postalCode, age
+│   │   ├── common.ts           # email, url, uuid, date, json, base64, slug, semver
+│   │   ├── auth.ts             # password, username, login/register, jwtToken, apiKey
+│   │   ├── financial.ts        # creditCard, price, iban, bic, currencyCode
+│   │   ├── network.ts          # ip, hostname, port, macAddress, domain
+│   │   ├── identity.ts         # phone, ssn, postalCode, age, birthDate
 │   │   └── index.ts
 │   └── index.ts
 ├── integrations/
@@ -51,8 +52,16 @@ src/
 │   │   └── index.ts
 │   └── index.ts
 ├── utils/
-│   └── logger.ts               # Scoped loggers
-└── __tests__/                  # Test files
+│   ├── logger.ts               # Scoped loggers (coreLogger, middlewareLogger, etc.)
+│   └── index.ts
+└── __tests__/                  # Test files (119 tests)
+    ├── core.spec.ts
+    ├── schemas.spec.ts
+    ├── resolver.spec.ts
+    ├── middleware.spec.ts
+    ├── logger.spec.ts
+    ├── utils.spec.ts
+    └── setup.ts
 ```
 
 ## Development Commands
@@ -63,7 +72,7 @@ pnpm test               # Run tests (119 tests)
 pnpm test:watch         # Watch mode
 pnpm test:coverage      # Coverage report
 pnpm type-check         # TypeScript validation
-pnpm lint               # ESLint with auto-fix
+pnpm lint               # Biome linting with auto-fix
 pnpm format             # Biome formatting
 ```
 
@@ -86,9 +95,18 @@ type ValidationResult<T> =
 
 // Schema wrapper
 interface Schema<T> {
+  _type: Type<T>                           // Underlying ArkType
+  meta?: SchemaMetadata
   validate(data: unknown): ValidationResult<T>
-  parse(data: unknown): T              // throws ValidationError
+  parse(data: unknown): T                  // throws ValidationError
   safeParse(data: unknown): ValidationResult<T>
+}
+
+// Engine config
+interface ValidationEngineConfig {
+  errorFormatter?: ErrorFormatter
+  debug?: boolean
+  stripUnknown?: boolean
 }
 ```
 
@@ -125,6 +143,15 @@ const result = schema.safeParse(data)
 if (result.success) {
   // result.data is typed
 }
+
+// Or use parse() which throws ValidationError
+try {
+  const data = schema.parse(input)
+} catch (e) {
+  if (e instanceof ValidationError) {
+    console.error(e.issues)
+  }
+}
 ```
 
 ### Pre-built Schemas
@@ -135,11 +162,36 @@ import { schemas, authSchemas, financialSchemas } from '@nextnode/validation'
 // Use directly
 const isValid = schemas.email('test@example.com')
 
-// Compose
+// Compose with type()
+import { type } from '@nextnode/validation'
 const paymentSchema = type({
   email: schemas.email,
   amount: financialSchemas.price
 })
+```
+
+### Factory Functions
+
+```typescript
+import { createPasswordSchema, createApiKey, stringLength, numberRange } from '@nextnode/validation'
+
+// Custom password requirements
+const password = createPasswordSchema({
+  minLength: 12,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireNumbers: true,
+  requireSpecialChars: true
+})
+
+// Custom API key prefix
+const apiKey = createApiKey('prod')  // prod_XXXXXXXX...
+
+// String length range
+const name = stringLength(2, 50)
+
+// Number range
+const age = numberRange(0, 120)
 ```
 
 ### React Hook Form
@@ -172,11 +224,23 @@ fastify.post('/users', { preHandler: fastifyValidator('body', schema) }, handler
 
 Error codes are defined in `src/lib/errors/codes.ts` for i18n support:
 
-- `invalid_type`, `required`, `unexpected_key`
-- `string_min`, `string_max`, `invalid_email`, `invalid_url`, `invalid_uuid`
-- `number_min`, `number_max`, `not_integer`, `not_positive`
-- `invalid_credit_card`, `invalid_iban`, `invalid_phone`
-- And more...
+**Type errors:** `invalid_type`, `required`, `unexpected_key`
+
+**String errors:** `string_min`, `string_max`, `string_length`, `string_pattern`, `invalid_email`, `invalid_url`, `invalid_uuid`, `invalid_date`, `invalid_json`, `invalid_base64`, `invalid_hex`, `invalid_format`
+
+**Number errors:** `number_min`, `number_max`, `number_range`, `not_integer`, `not_positive`, `not_negative`, `invalid_divisor`
+
+**Array errors:** `array_min`, `array_max`, `array_length`, `array_empty`
+
+**Auth errors:** `invalid_password`, `password_too_short`, `password_no_uppercase`, `password_no_lowercase`, `password_no_number`, `password_no_special`, `passwords_dont_match`
+
+**Financial errors:** `invalid_credit_card`, `invalid_iban`, `invalid_bic`, `invalid_currency`, `invalid_price`
+
+**Network errors:** `invalid_ip`, `invalid_ipv4`, `invalid_ipv6`, `invalid_hostname`, `invalid_port`, `invalid_mac`
+
+**Identity errors:** `invalid_phone`, `invalid_ssn`, `invalid_postal_code`
+
+**Custom:** `custom`, `predicate`, `narrow`
 
 ## Package Exports
 
@@ -195,12 +259,14 @@ Error codes are defined in `src/lib/errors/codes.ts` for i18n support:
 ## Dependencies
 
 **Production:**
-- `arktype` - Core validation library
-- `@nextnode/logger` - Logging
+- `arktype` ^2.1.28 - Core validation library
+- `@nextnode/logger` ^0.3.0 - Logging
 
 **Peer (optional):**
-- `react-hook-form` - For resolver
-- `hono`, `express`, `fastify` - For middleware
+- `react-hook-form` ^7.0.0 - For resolver
+- `hono` ^4.0.0 - For Hono middleware
+- `express` ^4.0.0 || ^5.0.0 - For Express middleware
+- `fastify` ^4.0.0 || ^5.0.0 - For Fastify middleware
 
 ## Testing
 
@@ -209,6 +275,8 @@ Tests are in `src/__tests__/`:
 - `schemas.spec.ts` - Pre-built schema tests
 - `resolver.spec.ts` - React Hook Form resolver tests
 - `middleware.spec.ts` - Server middleware tests
+- `logger.spec.ts` - Logger tests
+- `utils.spec.ts` - Utility tests
 
 All tests use Vitest with proper mocking for logger.
 
@@ -218,4 +286,5 @@ All tests use Vitest with proper mocking for logger.
 2. **Composition over inheritance**: Schemas compose via ArkType's type system
 3. **DI pattern**: ErrorFormatter interface for customization
 4. **Tree-shakeable**: Separate export paths for integrations
-5. **Framework-agnostic middleware**: Core logic in `middleware/core.ts`
+5. **Framework-agnostic middleware**: Core logic in `middleware/core.ts`, adapters in separate files
+6. **Factory pattern**: `createValidationEngine`, `createPasswordSchema`, `createApiKey` for configurability
