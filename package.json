@@ -63,7 +63,25 @@
 		"vitest": "^3.1.4"
 	},
 	"peerDependencies": {
-		"eslint": "^9.22.0"
+		"eslint": "^9.22.0",
+		"express": "^4.0.0 || ^5.0.0",
+		"fastify": "^4.0.0 || ^5.0.0",
+		"hono": "^4.0.0",
+		"react-hook-form": "^7.0.0"
+	},
+	"peerDependenciesMeta": {
+		"express": {
+			"optional": true
+		},
+		"fastify": {
+			"optional": true
+		},
+		"hono": {
+			"optional": true
+		},
+		"react-hook-form": {
+			"optional": true
+		}
 	},
 	"engines": {
 		"node": ">=24.0.0"
@@ -74,6 +92,30 @@
 		".": {
 			"import": "./dist/index.js",
 			"types": "./dist/index.d.ts"
+		},
+		"./react-hook-form": {
+			"import": "./dist/integrations/react-hook-form/index.js",
+			"types": "./dist/integrations/react-hook-form/index.d.ts"
+		},
+		"./middleware": {
+			"import": "./dist/integrations/middleware/index.js",
+			"types": "./dist/integrations/middleware/index.d.ts"
+		},
+		"./middleware/hono": {
+			"import": "./dist/integrations/middleware/hono.js",
+			"types": "./dist/integrations/middleware/hono.d.ts"
+		},
+		"./middleware/express": {
+			"import": "./dist/integrations/middleware/express.js",
+			"types": "./dist/integrations/middleware/express.d.ts"
+		},
+		"./middleware/fastify": {
+			"import": "./dist/integrations/middleware/fastify.js",
+			"types": "./dist/integrations/middleware/fastify.d.ts"
+		},
+		"./schemas": {
+			"import": "./dist/lib/schemas/index.js",
+			"types": "./dist/lib/schemas/index.d.ts"
 		}
 	},
 	"module": "./dist/index.js",
