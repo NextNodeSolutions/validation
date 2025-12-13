@@ -36,6 +36,14 @@ export const createApiKey = (prefix = 'sk'): ReturnType<typeof type> =>
 export const apiKey = createApiKey('sk')
 
 /**
+ * Password validation rule
+ */
+interface PasswordRule {
+	check: (password: string) => boolean
+	expected: string
+}
+
+/**
  * Password requirements configuration
  */
 export interface PasswordRequirements {
@@ -44,10 +52,13 @@ export interface PasswordRequirements {
 	requireLowercase?: boolean
 	requireNumbers?: boolean
 	requireSpecialChars?: boolean
+	/** If true, stops at first error. If false (default), collects all errors. */
+	failFast?: boolean
 }
 
 /**
  * Creates a password schema with configurable requirements
+ * By default, collects all validation errors for better UX
  */
 export const createPasswordSchema = (
 	options: PasswordRequirements = {},
@@ -58,30 +69,55 @@ export const createPasswordSchema = (
 		requireLowercase = true,
 		requireNumbers = true,
 		requireSpecialChars = false,
+		failFast = false,
 	} = options
 
-	return type(`string >= ${minLength}`).narrow((password, ctx) => {
-		if (requireUppercase && !/[A-Z]/.test(password)) {
-			return ctx.reject({
-				expected: 'password with uppercase letter',
-			})
+	const rules: PasswordRule[] = [
+		{
+			check: p => p.length >= minLength,
+			expected: `at least ${minLength} characters`,
+		},
+		...(requireUppercase
+			? [
+					{
+						check: (p: string) => /[A-Z]/.test(p),
+						expected: 'uppercase letter',
+					},
+				]
+			: []),
+		...(requireLowercase
+			? [
+					{
+						check: (p: string) => /[a-z]/.test(p),
+						expected: 'lowercase letter',
+					},
+				]
+			: []),
+		...(requireNumbers
+			? [{ check: (p: string) => /[0-9]/.test(p), expected: 'number' }]
+			: []),
+		...(requireSpecialChars
+			? [
+					{
+						check: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p),
+						expected: 'special character',
+					},
+				]
+			: []),
+	]
+
+	return type('string').narrow((password, ctx) => {
+		let valid = true
+
+		for (const rule of rules) {
+			if (!rule.check(password)) {
+				ctx.reject({ expected: rule.expected })
+				if (failFast) return false
+				valid = false
+			}
 		}
-		if (requireLowercase && !/[a-z]/.test(password)) {
-			return ctx.reject({
-				expected: 'password with lowercase letter',
-			})
-		}
-		if (requireNumbers && !/[0-9]/.test(password)) {
-			return ctx.reject({
-				expected: 'password with number',
-			})
-		}
-		if (requireSpecialChars && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-			return ctx.reject({
-				expected: 'password with special character',
-			})
-		}
-		return true
+
+		return valid
 	})
 }
 

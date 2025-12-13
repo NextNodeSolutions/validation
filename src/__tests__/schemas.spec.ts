@@ -9,6 +9,7 @@ import {
 	age,
 	// Auth
 	authSchemas,
+	createPasswordSchema,
 	creditCard,
 	currencyCode,
 	date,
@@ -245,6 +246,66 @@ describe('Pre-built Schemas', () => {
 					)(p)
 					expect(result instanceof type.errors).toBe(true)
 				})
+			})
+
+			it('should collect ALL errors by default (not fail-fast)', () => {
+				// Password with multiple issues: too short, no uppercase, no number, no special
+				const result = (strongPassword as (data: unknown) => unknown)(
+					'abc',
+				)
+
+				expect(result instanceof type.errors).toBe(true)
+				if (result instanceof type.errors) {
+					// ArkType accumulates all failures in the expected field
+					const expected = [...result][0].expected ?? ''
+					expect(expected).toContain('at least 8 characters')
+					expect(expected).toContain('uppercase letter')
+					expect(expected).toContain('number')
+					expect(expected).toContain('special character')
+				}
+			})
+		})
+
+		describe('createPasswordSchema', () => {
+			it('should collect all errors when failFast is false (default)', () => {
+				const schema = createPasswordSchema({
+					minLength: 8,
+					requireUppercase: true,
+					requireNumbers: true,
+					requireSpecialChars: true,
+				})
+
+				const result = (schema as (data: unknown) => unknown)('abc')
+
+				expect(result instanceof type.errors).toBe(true)
+				if (result instanceof type.errors) {
+					// ArkType accumulates all failures in the expected field
+					const expected = [...result][0].expected ?? ''
+					expect(expected).toContain('at least 8 characters')
+					expect(expected).toContain('uppercase letter')
+					expect(expected).toContain('number')
+					expect(expected).toContain('special character')
+				}
+			})
+
+			it('should stop at first error when failFast is true', () => {
+				const schema = createPasswordSchema({
+					minLength: 8,
+					requireUppercase: true,
+					requireNumbers: true,
+					requireSpecialChars: true,
+					failFast: true,
+				})
+
+				const result = (schema as (data: unknown) => unknown)('abc')
+
+				expect(result instanceof type.errors).toBe(true)
+				if (result instanceof type.errors) {
+					// Should only have the first error (length)
+					const expected = [...result][0].expected ?? ''
+					expect(expected).toBe('at least 8 characters')
+					expect(expected).not.toContain('uppercase')
+				}
 			})
 		})
 

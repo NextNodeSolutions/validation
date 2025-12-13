@@ -48,6 +48,14 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		for (const error of arkErrors) {
 			const arkError = error as ArkTypeError
 			const path = [...basePath, ...this.extractPath(arkError)]
+
+			// Check if this is a compound error (multiple failures in one)
+			const splitIssues = this.splitCompoundError(arkError, path)
+			if (splitIssues.length > 0) {
+				issues.push(...splitIssues)
+				continue
+			}
+
 			const code = this.mapErrorCode(arkError)
 			const message = this.formatMessage(arkError, code, path)
 
@@ -69,6 +77,56 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		}
 
 		return issues
+	}
+
+	/**
+	 * Split compound ArkType errors (multiple failures in one) into separate issues
+	 * ArkType uses ◦ bullets when multiple ctx.reject() calls are made
+	 */
+	private splitCompoundError(
+		error: ArkTypeError,
+		path: ReadonlyArray<string | number>,
+	): ValidationIssue[] {
+		const expected = error.expected ?? ''
+
+		// Check if this is a compound error with bullet points
+		if (!expected.includes('◦')) {
+			return []
+		}
+
+		// Split by bullet points and create separate issues
+		const failures = expected
+			.split('◦')
+			.map(s => s.trim())
+			.filter(s => s.length > 0)
+
+		return failures.map(failure => {
+			const issue: ValidationIssue = {
+				path: [...path],
+				code: this.mapErrorCodeFromExpected(failure),
+				message: `must have ${failure}`,
+				...(this.config.includeDetails && {
+					expected: failure,
+					actual: this.sanitizeActual(error.actual),
+				}),
+			}
+			return issue
+		})
+	}
+
+	/**
+	 * Map error code from a single expected string
+	 */
+	private mapErrorCodeFromExpected(expected: string): string {
+		const lower = expected.toLowerCase()
+
+		if (lower.includes('character')) return ErrorCodes.STRING_MIN
+		if (lower.includes('uppercase')) return ErrorCodes.PREDICATE
+		if (lower.includes('lowercase')) return ErrorCodes.PREDICATE
+		if (lower.includes('number')) return ErrorCodes.PREDICATE
+		if (lower.includes('special')) return ErrorCodes.PREDICATE
+
+		return ErrorCodes.PREDICATE
 	}
 
 	private extractPath(error: ArkTypeError): Array<string | number> {
