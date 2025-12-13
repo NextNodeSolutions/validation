@@ -3,7 +3,7 @@
  * Wraps ArkType with standardized interface and error formatting
  */
 
-import type { Type, } from 'arktype'
+import type { Type } from 'arktype'
 import { type } from 'arktype'
 
 import { coreLogger, logError } from '../../utils/logger.js'
@@ -144,6 +144,5 @@ export const v = createValidationEngine()
 /**
  * Type utility to infer schema type
  */
-export type Infer<T extends Schema<unknown>> = T extends Schema<infer U>
-	? U
-	: never
+export type Infer<T extends Schema<unknown>> =
+	T extends Schema<infer U> ? U : never

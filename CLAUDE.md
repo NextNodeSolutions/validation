@@ -7,6 +7,7 @@ This file provides guidance to Claude Code when working with the validation libr
 `@nextnode/validation` is a TypeScript validation library powered by **ArkType** for comprehensive input validation on both frontend and backend in NextNode projects.
 
 **Key Features:**
+
 - ArkType-powered validation with full TypeScript type inference
 - Pre-built validators (50+ schemas: email, URL, UUID, credit card, phone, passwords, etc.)
 - React Hook Form integration via `arktypeResolver`
@@ -81,32 +82,32 @@ pnpm format             # Biome formatting
 ```typescript
 // Structured error format
 interface ValidationIssue {
-  path: ReadonlyArray<string | number>  // ['user', 'email']
-  code: string                          // 'invalid_email'
-  message: string                       // 'must be a valid email'
-  expected?: string
-  actual?: string
+	path: ReadonlyArray<string | number> // ['user', 'email']
+	code: string // 'invalid_email'
+	message: string // 'must be a valid email'
+	expected?: string
+	actual?: string
 }
 
 // Discriminated union result
 type ValidationResult<T> =
-  | { success: true; data: T }
-  | { success: false; issues: readonly ValidationIssue[] }
+	| { success: true; data: T }
+	| { success: false; issues: readonly ValidationIssue[] }
 
 // Schema wrapper
 interface Schema<T> {
-  _type: Type<T>                           // Underlying ArkType
-  meta?: SchemaMetadata
-  validate(data: unknown): ValidationResult<T>
-  parse(data: unknown): T                  // throws ValidationError
-  safeParse(data: unknown): ValidationResult<T>
+	_type: Type<T> // Underlying ArkType
+	meta?: SchemaMetadata
+	validate(data: unknown): ValidationResult<T>
+	parse(data: unknown): T // throws ValidationError
+	safeParse(data: unknown): ValidationResult<T>
 }
 
 // Engine config
 interface ValidationEngineConfig {
-  errorFormatter?: ErrorFormatter
-  debug?: boolean
-  stripUnknown?: boolean
+	errorFormatter?: ErrorFormatter
+	debug?: boolean
+	stripUnknown?: boolean
 }
 ```
 
@@ -118,14 +119,14 @@ interface ValidationEngineConfig {
 import { type } from '@nextnode/validation'
 
 const userSchema = type({
-  email: 'string.email',
-  age: 'number >= 0',
-  'nickname?': 'string'  // Optional with ?
+	email: 'string.email',
+	age: 'number >= 0',
+	'nickname?': 'string', // Optional with ?
 })
 
 const result = userSchema(data)
 if (result instanceof type.errors) {
-  console.error(result.summary)
+	console.error(result.summary)
 }
 ```
 
@@ -136,21 +137,21 @@ import { v } from '@nextnode/validation'
 
 // Create schema with safeParse/parse methods
 const schema = v.object<{ email: string }>({
-  email: 'string.email'
+	email: 'string.email',
 })
 
 const result = schema.safeParse(data)
 if (result.success) {
-  // result.data is typed
+	// result.data is typed
 }
 
 // Or use parse() which throws ValidationError
 try {
-  const data = schema.parse(input)
+	const data = schema.parse(input)
 } catch (e) {
-  if (e instanceof ValidationError) {
-    console.error(e.issues)
-  }
+	if (e instanceof ValidationError) {
+		console.error(e.issues)
+	}
 }
 ```
 
@@ -165,27 +166,32 @@ const isValid = schemas.email('test@example.com')
 // Compose with type()
 import { type } from '@nextnode/validation'
 const paymentSchema = type({
-  email: schemas.email,
-  amount: financialSchemas.price
+	email: schemas.email,
+	amount: financialSchemas.price,
 })
 ```
 
 ### Factory Functions
 
 ```typescript
-import { createPasswordSchema, createApiKey, stringLength, numberRange } from '@nextnode/validation'
+import {
+	createPasswordSchema,
+	createApiKey,
+	stringLength,
+	numberRange,
+} from '@nextnode/validation'
 
 // Custom password requirements
 const password = createPasswordSchema({
-  minLength: 12,
-  requireUppercase: true,
-  requireLowercase: true,
-  requireNumbers: true,
-  requireSpecialChars: true
+	minLength: 12,
+	requireUppercase: true,
+	requireLowercase: true,
+	requireNumbers: true,
+	requireSpecialChars: true,
 })
 
 // Custom API key prefix
-const apiKey = createApiKey('prod')  // prod_XXXXXXXX...
+const apiKey = createApiKey('prod') // prod_XXXXXXXX...
 
 // String length range
 const name = stringLength(2, 50)
@@ -200,7 +206,7 @@ const age = numberRange(0, 120)
 import { arktypeResolver } from '@nextnode/validation/react-hook-form'
 
 const { register, handleSubmit } = useForm({
-  resolver: arktypeResolver(schema)
+	resolver: arktypeResolver(schema),
 })
 ```
 
@@ -217,7 +223,11 @@ app.post('/users', expressValidator('body', schema), handler)
 
 // Fastify
 import { fastifyValidator } from '@nextnode/validation/middleware/fastify'
-fastify.post('/users', { preHandler: fastifyValidator('body', schema) }, handler)
+fastify.post(
+	'/users',
+	{ preHandler: fastifyValidator('body', schema) },
+	handler,
+)
 ```
 
 ## Error Codes
@@ -246,23 +256,25 @@ Error codes are defined in `src/lib/errors/codes.ts` for i18n support:
 
 ```json
 {
-  ".": "./dist/index.js",
-  "./react-hook-form": "./dist/integrations/react-hook-form/index.js",
-  "./middleware": "./dist/integrations/middleware/index.js",
-  "./middleware/hono": "./dist/integrations/middleware/hono.js",
-  "./middleware/express": "./dist/integrations/middleware/express.js",
-  "./middleware/fastify": "./dist/integrations/middleware/fastify.js",
-  "./schemas": "./dist/lib/schemas/index.js"
+	".": "./dist/index.js",
+	"./react-hook-form": "./dist/integrations/react-hook-form/index.js",
+	"./middleware": "./dist/integrations/middleware/index.js",
+	"./middleware/hono": "./dist/integrations/middleware/hono.js",
+	"./middleware/express": "./dist/integrations/middleware/express.js",
+	"./middleware/fastify": "./dist/integrations/middleware/fastify.js",
+	"./schemas": "./dist/lib/schemas/index.js"
 }
 ```
 
 ## Dependencies
 
 **Production:**
+
 - `arktype` ^2.1.28 - Core validation library
 - `@nextnode/logger` ^0.3.0 - Logging
 
 **Peer (optional):**
+
 - `react-hook-form` ^7.0.0 - For resolver
 - `hono` ^4.0.0 - For Hono middleware
 - `express` ^4.0.0 || ^5.0.0 - For Express middleware
@@ -271,6 +283,7 @@ Error codes are defined in `src/lib/errors/codes.ts` for i18n support:
 ## Testing
 
 Tests are in `src/__tests__/`:
+
 - `core.spec.ts` - Validation engine tests
 - `schemas.spec.ts` - Pre-built schema tests
 - `resolver.spec.ts` - React Hook Form resolver tests

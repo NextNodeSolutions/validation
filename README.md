@@ -19,6 +19,7 @@ pnpm add @nextnode/validation
 ```
 
 **Peer dependencies** (install as needed):
+
 ```bash
 # React Hook Form integration
 pnpm add react-hook-form
@@ -36,18 +37,18 @@ import { type } from '@nextnode/validation'
 
 // Define schema using ArkType string syntax
 const userSchema = type({
-  email: 'string.email',
-  age: 'number >= 0',
-  role: "'admin' | 'user'"
+	email: 'string.email',
+	age: 'number >= 0',
+	role: "'admin' | 'user'",
 })
 
 // Validate data
 const result = userSchema({ email: 'test@example.com', age: 25, role: 'user' })
 
 if (result instanceof type.errors) {
-  console.error(result.summary)
+	console.error(result.summary)
 } else {
-  console.log('Valid user:', result)
+	console.log('Valid user:', result)
 }
 ```
 
@@ -58,17 +59,17 @@ import { v } from '@nextnode/validation'
 
 // Create schemas with the validation engine
 const schema = v.object<{ name: string; email: string }>({
-  name: 'string >= 1',
-  email: 'string.email'
+	name: 'string >= 1',
+	email: 'string.email',
 })
 
 // Safe parsing (returns result object)
 const result = schema.safeParse({ name: 'John', email: 'john@example.com' })
 
 if (result.success) {
-  console.log(result.data) // Typed as { name: string; email: string }
+	console.log(result.data) // Typed as { name: string; email: string }
 } else {
-  console.log(result.issues) // Array of ValidationIssue
+	console.log(result.issues) // Array of ValidationIssue
 }
 
 // Throws on invalid data
@@ -79,11 +80,11 @@ const data = schema.parse(input)
 
 ```typescript
 import {
-  schemas,           // Common: email, url, uuid, date, json, slug, semver, etc.
-  authSchemas,       // Auth: strongPassword, username, loginSchema, jwtToken, apiKey
-  financialSchemas,  // Financial: creditCard, price, iban, bic, currencyCode
-  networkSchemas,    // Network: ipv4, ipv6, port, hostname, macAddress, domain
-  identitySchemas    // Identity: phoneE164, ssnUS, postalCodeFR, age, birthDate
+	schemas, // Common: email, url, uuid, date, json, slug, semver, etc.
+	authSchemas, // Auth: strongPassword, username, loginSchema, jwtToken, apiKey
+	financialSchemas, // Financial: creditCard, price, iban, bic, currencyCode
+	networkSchemas, // Network: ipv4, ipv6, port, hostname, macAddress, domain
+	identitySchemas, // Identity: phoneE164, ssnUS, postalCodeFR, age, birthDate
 } from '@nextnode/validation'
 
 // Use pre-built validators
@@ -92,21 +93,21 @@ const isValidCard = financialSchemas.creditCard('4532015112830366')
 
 // Compose with custom schemas
 const paymentSchema = type({
-  email: schemas.email,
-  amount: financialSchemas.price,
-  cardNumber: financialSchemas.creditCard
+	email: schemas.email,
+	amount: financialSchemas.price,
+	cardNumber: financialSchemas.creditCard,
 })
 
 // Use factory functions for configurable validators
 import { createPasswordSchema, createApiKey } from '@nextnode/validation'
 
 const customPassword = createPasswordSchema({
-  minLength: 12,
-  requireUppercase: true,
-  requireSpecialChars: true
+	minLength: 12,
+	requireUppercase: true,
+	requireSpecialChars: true,
 })
 
-const myApiKey = createApiKey('api')  // Validates api_XXXXXXXXXX...
+const myApiKey = createApiKey('api') // Validates api_XXXXXXXXXX...
 ```
 
 ## React Hook Form Integration
@@ -152,13 +153,13 @@ import { honoValidator } from '@nextnode/validation/middleware/hono'
 const app = new Hono()
 
 const userSchema = type({
-  email: 'string.email',
-  name: 'string >= 1'
+	email: 'string.email',
+	name: 'string >= 1',
 })
 
-app.post('/users', honoValidator('body', userSchema), (c) => {
-  const user = c.get('validated')
-  return c.json({ user })
+app.post('/users', honoValidator('body', userSchema), c => {
+	const user = c.get('validated')
+	return c.json({ user })
 })
 ```
 
@@ -173,13 +174,13 @@ const app = express()
 app.use(express.json())
 
 const userSchema = type({
-  email: 'string.email',
-  name: 'string >= 1'
+	email: 'string.email',
+	name: 'string >= 1',
 })
 
 app.post('/users', expressValidator('body', userSchema), (req, res) => {
-  const user = req.validated
-  res.json({ user })
+	const user = req.validated
+	res.json({ user })
 })
 ```
 
@@ -193,16 +194,20 @@ import { fastifyValidator } from '@nextnode/validation/middleware/fastify'
 const fastify = Fastify()
 
 const userSchema = type({
-  email: 'string.email',
-  name: 'string >= 1'
+	email: 'string.email',
+	name: 'string >= 1',
 })
 
-fastify.post('/users', {
-  preHandler: fastifyValidator('body', userSchema)
-}, (request, reply) => {
-  const user = request.validated
-  reply.send({ user })
-})
+fastify.post(
+	'/users',
+	{
+		preHandler: fastifyValidator('body', userSchema),
+	},
+	(request, reply) => {
+		const user = request.validated
+		reply.send({ user })
+	},
+)
 ```
 
 ## Validation Targets
@@ -229,11 +234,11 @@ Validation errors follow a structured format for easy i18n:
 
 ```typescript
 interface ValidationIssue {
-  path: ReadonlyArray<string | number>  // ['user', 'email']
-  code: string                          // 'invalid_email'
-  message: string                       // 'must be a valid email'
-  expected?: string                     // 'valid email format'
-  actual?: string                       // 'invalid-email'
+	path: ReadonlyArray<string | number> // ['user', 'email']
+	code: string // 'invalid_email'
+	message: string // 'must be a valid email'
+	expected?: string // 'valid email format'
+	actual?: string // 'invalid-email'
 }
 ```
 
@@ -246,17 +251,17 @@ import { type } from '@nextnode/validation'
 const slugSchema = type(/^[a-z0-9-]+$/)
 
 // Custom validation with narrow()
-const evenNumber = type('number').narrow((n) => n % 2 === 0)
+const evenNumber = type('number').narrow(n => n % 2 === 0)
 
 // Complex validation
 const passwordSchema = type('string >= 8').narrow((pwd, ctx) => {
-  if (!/[A-Z]/.test(pwd)) {
-    return ctx.reject({ expected: 'uppercase letter required' })
-  }
-  if (!/[0-9]/.test(pwd)) {
-    return ctx.reject({ expected: 'number required' })
-  }
-  return true
+	if (!/[A-Z]/.test(pwd)) {
+		return ctx.reject({ expected: 'uppercase letter required' })
+	}
+	if (!/[0-9]/.test(pwd)) {
+		return ctx.reject({ expected: 'number required' })
+	}
+	return true
 })
 ```
 
@@ -264,40 +269,40 @@ const passwordSchema = type('string >= 8').narrow((pwd, ctx) => {
 
 ### Main Exports
 
-| Export | Description |
-|--------|-------------|
-| `type` | ArkType's type function for schema definitions |
-| `Type` | ArkType's Type (for type annotations) |
-| `v` | Validation engine instance (`v.schema`, `v.define`, `v.object`) |
-| `createValidationEngine` | Factory to create custom engine with config |
-| `ValidationError` | Error class thrown by `parse()` |
-| `Infer` | Type utility to infer schema type |
-| `schemas` | Common validators (email, url, uuid, slug, semver, etc.) |
-| `authSchemas` | Authentication schemas (password, username, JWT, API keys) |
-| `financialSchemas` | Financial validators (credit card, IBAN, BIC, price) |
-| `networkSchemas` | Network validators (IP, port, hostname, MAC) |
-| `identitySchemas` | Identity validators (phone, SSN, postal codes, age) |
-| `ErrorCodes` | Error code constants for i18n |
+| Export                   | Description                                                     |
+| ------------------------ | --------------------------------------------------------------- |
+| `type`                   | ArkType's type function for schema definitions                  |
+| `Type`                   | ArkType's Type (for type annotations)                           |
+| `v`                      | Validation engine instance (`v.schema`, `v.define`, `v.object`) |
+| `createValidationEngine` | Factory to create custom engine with config                     |
+| `ValidationError`        | Error class thrown by `parse()`                                 |
+| `Infer`                  | Type utility to infer schema type                               |
+| `schemas`                | Common validators (email, url, uuid, slug, semver, etc.)        |
+| `authSchemas`            | Authentication schemas (password, username, JWT, API keys)      |
+| `financialSchemas`       | Financial validators (credit card, IBAN, BIC, price)            |
+| `networkSchemas`         | Network validators (IP, port, hostname, MAC)                    |
+| `identitySchemas`        | Identity validators (phone, SSN, postal codes, age)             |
+| `ErrorCodes`             | Error code constants for i18n                                   |
 
 ### Factory Functions
 
-| Export | Description |
-|--------|-------------|
+| Export                 | Description                                        |
+| ---------------------- | -------------------------------------------------- |
 | `createPasswordSchema` | Create password validator with custom requirements |
-| `createApiKey` | Create API key validator with custom prefix |
-| `stringLength` | Create string length validator |
-| `numberRange` | Create number range validator |
+| `createApiKey`         | Create API key validator with custom prefix        |
+| `stringLength`         | Create string length validator                     |
+| `numberRange`          | Create number range validator                      |
 
 ### Sub-path Exports
 
-| Path | Description |
-|------|-------------|
-| `@nextnode/validation/react-hook-form` | React Hook Form resolver |
-| `@nextnode/validation/middleware` | All middleware adapters |
-| `@nextnode/validation/middleware/hono` | Hono middleware |
-| `@nextnode/validation/middleware/express` | Express middleware |
-| `@nextnode/validation/middleware/fastify` | Fastify middleware |
-| `@nextnode/validation/schemas` | Pre-built schemas only |
+| Path                                      | Description              |
+| ----------------------------------------- | ------------------------ |
+| `@nextnode/validation/react-hook-form`    | React Hook Form resolver |
+| `@nextnode/validation/middleware`         | All middleware adapters  |
+| `@nextnode/validation/middleware/hono`    | Hono middleware          |
+| `@nextnode/validation/middleware/express` | Express middleware       |
+| `@nextnode/validation/middleware/fastify` | Fastify middleware       |
+| `@nextnode/validation/schemas`            | Pre-built schemas only   |
 
 ### Pre-built Schema Reference
 
