@@ -1,1 +1,3 @@
-export { default } from '@nextnode/standards/commitlint'
+export default {
+	extends: ['@nextnode/standards/commitlint'],
+}
