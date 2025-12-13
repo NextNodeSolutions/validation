@@ -3,7 +3,7 @@
 	"changelog": [
 		"@changesets/changelog-github",
 		{
-			"repo": "NextNodeSolutions/apps_eslint-plugin"
+			"repo": "NextNodeSolutions/validation"
 		}
 	],
 	"commit": false,
