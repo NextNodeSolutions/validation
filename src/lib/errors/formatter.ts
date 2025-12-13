@@ -4,13 +4,25 @@
 
 import type { ArkErrors } from 'arktype'
 
-import type { ErrorCode, } from './codes.js'
+import type { ErrorCode } from './codes.js'
 import { ErrorCodes } from './codes.js'
 import type {
 	ErrorFormatter,
 	ErrorFormatterConfig,
 	ValidationIssue,
 } from './types.js'
+
+/**
+ * Internal representation of ArkType error properties
+ * Used to avoid repeated type assertions when accessing error fields
+ */
+interface ArkTypeError {
+	code?: string
+	expected?: string
+	actual?: unknown
+	path?: ReadonlyArray<string | number>
+	message?: string
+}
 
 /**
  * Default error formatter implementation
@@ -34,10 +46,10 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		const issues: ValidationIssue[] = []
 
 		for (const error of arkErrors) {
-			const path = [...basePath, ...this.extractPath(error)]
-			const code = this.mapErrorCode(error)
-			const message = this.formatMessage(error, code, path)
-			const arkError = error as { expected?: string; actual?: unknown }
+			const arkError = error as ArkTypeError
+			const path = [...basePath, ...this.extractPath(arkError)]
+			const code = this.mapErrorCode(arkError)
+			const message = this.formatMessage(arkError, code, path)
 
 			const issue: ValidationIssue = this.config.includeDetails
 				? {
@@ -59,22 +71,15 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		return issues
 	}
 
-	private extractPath(error: unknown): Array<string | number> {
-		const arkError = error as { path?: Array<string | number> }
-		return arkError.path ?? []
+	private extractPath(error: ArkTypeError): Array<string | number> {
+		return error.path ? [...error.path] : []
 	}
 
 	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Error mapping requires many conditions
-	private mapErrorCode(error: unknown): string {
-		const arkError = error as {
-			code?: string
-			expected?: string
-			message?: string
-		}
-
+	private mapErrorCode(error: ArkTypeError): string {
 		// Map based on expected type keywords
-		if (arkError.expected) {
-			const expected = arkError.expected.toLowerCase()
+		if (error.expected) {
+			const expected = error.expected.toLowerCase()
 
 			if (expected.includes('email')) return ErrorCodes.INVALID_EMAIL
 			if (expected.includes('url')) return ErrorCodes.INVALID_URL
@@ -98,22 +103,22 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		}
 
 		// Map based on ArkType error codes
-		if (arkError.code === 'predicate') return ErrorCodes.PREDICATE
-		if (arkError.code === 'required') return ErrorCodes.REQUIRED
+		if (error.code === 'predicate') return ErrorCodes.PREDICATE
+		if (error.code === 'required') return ErrorCodes.REQUIRED
 
 		// Check message for additional context
-		if (arkError.message) {
-			const msg = arkError.message.toLowerCase()
+		if (error.message) {
+			const msg = error.message.toLowerCase()
 			if (msg.includes('must be at least')) return ErrorCodes.STRING_MIN
 			if (msg.includes('must be at most')) return ErrorCodes.STRING_MAX
 			if (msg.includes('required')) return ErrorCodes.REQUIRED
 		}
 
-		return arkError.code ?? ErrorCodes.INVALID_TYPE
+		return error.code ?? ErrorCodes.INVALID_TYPE
 	}
 
 	private formatMessage(
-		error: unknown,
+		error: ArkTypeError,
 		code: string,
 		path: ReadonlyArray<string | number>,
 	): string {
@@ -121,11 +126,10 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		const customTemplate = this.config.messages[code as ErrorCode]
 
 		if (typeof customTemplate === 'function') {
-			const arkError = error as { expected?: string; actual?: unknown }
 			return customTemplate({
 				path: pathStr,
-				expected: arkError.expected,
-				actual: this.sanitizeActual(arkError.actual),
+				expected: error.expected,
+				actual: this.sanitizeActual(error.actual),
 			})
 		}
 
@@ -134,8 +138,7 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		}
 
 		// Default: use ArkType's message
-		const arkError = error as { message?: string }
-		return arkError.message ?? `Validation failed at ${pathStr}`
+		return error.message ?? `Validation failed at ${pathStr}`
 	}
 
 	private sanitizeActual(actual: unknown): string | undefined {

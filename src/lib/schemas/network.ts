@@ -4,6 +4,8 @@
 
 import { type } from 'arktype'
 
+import { url } from './common.js'
+
 /**
  * IPv4 address
  */
@@ -26,10 +28,8 @@ export const ip = type(
 	/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/,
 )
 
-/**
- * URL with protocol
- */
-export const url = type('string.url')
+// Re-export url from common
+export { url }
 
 /**
  * Hostname (domain name without protocol)

@@ -40,7 +40,7 @@ export {
 	url,
 	uuid,
 } from './common.js'
-// Financial
+// Financial (percentage re-exported from common)
 export {
 	amount,
 	bic,
@@ -52,26 +52,6 @@ export {
 	taxIdFR,
 	taxIdUS,
 } from './financial.js'
-
-// Note: percentage is already exported from common
-
-// Network
-export {
-	domain,
-	hostname,
-	httpMethod,
-	httpStatusCode,
-	ip,
-	ipv4,
-	ipv6,
-	macAddress,
-	networkSchemas,
-	port,
-	urlSlug,
-} from './network.js'
-
-// Note: url is already exported from common
-
 // Identity
 export {
 	age,
@@ -92,3 +72,17 @@ export {
 	title,
 	zipCodeUS,
 } from './identity.js'
+// Network (url re-exported from common)
+export {
+	domain,
+	hostname,
+	httpMethod,
+	httpStatusCode,
+	ip,
+	ipv4,
+	ipv6,
+	macAddress,
+	networkSchemas,
+	port,
+	urlSlug,
+} from './network.js'

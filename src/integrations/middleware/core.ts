@@ -3,9 +3,10 @@
  * Shared validation logic used by all framework adapters
  */
 
-import type { Type, } from 'arktype'
+import type { Type } from 'arktype'
 import { type } from 'arktype'
 
+import { isWrappedSchema } from '../../lib/core/guards.js'
 import type {
 	Schema,
 	ValidationIssue,
@@ -16,12 +17,6 @@ import { coreLogger } from '../../utils/logger.js'
 import type { ValidationErrorResponse } from './types.js'
 
 const errorFormatter = new DefaultErrorFormatter()
-
-/**
- * Check if schema is our wrapper type
- */
-const isWrappedSchema = <T>(schema: Type<T> | Schema<T>): schema is Schema<T> =>
-	'safeParse' in schema
 
 /**
  * Core validation function used by all framework adapters
@@ -66,10 +61,3 @@ export const createErrorResponse = (
 		},
 	}
 }
-
-/**
- * Default error handler - returns structured error response
- */
-export const defaultErrorHandler = (
-	issues: readonly ValidationIssue[],
-): ValidationErrorResponse => createErrorResponse(issues)

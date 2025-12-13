@@ -4,11 +4,7 @@
  */
 
 // Core utilities
-export {
-	createErrorResponse,
-	defaultErrorHandler,
-	validateData,
-} from './core.js'
+export { createErrorResponse, validateData } from './core.js'
 export type { ExpressValidatorOptions } from './express.js'
 // Express
 export { expressValidator } from './express.js'

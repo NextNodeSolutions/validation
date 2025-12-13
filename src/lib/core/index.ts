@@ -8,6 +8,7 @@ export {
 	ValidationError,
 	v,
 } from './engine.js'
+export { isWrappedSchema } from './guards.js'
 export type {
 	ErrorFormatter,
 	Schema,

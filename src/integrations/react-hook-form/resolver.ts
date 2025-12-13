@@ -2,9 +2,10 @@
  * React Hook Form resolver for ArkType schemas
  */
 
-import type { Type, } from 'arktype'
+import type { Type } from 'arktype'
 import { type } from 'arktype'
 
+import { isWrappedSchema } from '../../lib/core/guards.js'
 import type { Schema, ValidationIssue } from '../../lib/core/types.js'
 import { DefaultErrorFormatter } from '../../lib/errors/formatter.js'
 import type {
@@ -15,12 +16,6 @@ import type {
 } from './types.js'
 
 const errorFormatter = new DefaultErrorFormatter()
-
-/**
- * Check if value is our Schema wrapper or raw ArkType
- */
-const isWrappedSchema = <T>(schema: Type<T> | Schema<T>): schema is Schema<T> =>
-	'safeParse' in schema && typeof schema.safeParse === 'function'
 
 /**
  * Converts validation issues to React Hook Form FieldErrors
@@ -100,12 +95,12 @@ export const arktypeResolver = <T extends Record<string, unknown>>(
 			if (result.success) {
 				return {
 					values: result.data as T,
-					errors: {} as Record<string, never>,
+					errors: {},
 				}
 			}
 
 			return {
-				values: {} as Record<string, never>,
+				values: {},
 				errors: issuesToFieldErrors<T>(
 					result.issues,
 					validateAllFieldCriteria,
@@ -120,7 +115,7 @@ export const arktypeResolver = <T extends Record<string, unknown>>(
 			const issues = errorFormatter.format(result)
 
 			return {
-				values: {} as Record<string, never>,
+				values: {},
 				errors: issuesToFieldErrors<T>(
 					issues,
 					validateAllFieldCriteria,
@@ -130,7 +125,7 @@ export const arktypeResolver = <T extends Record<string, unknown>>(
 
 		return {
 			values: result as T,
-			errors: {} as Record<string, never>,
+			errors: {},
 		}
 	}
 }

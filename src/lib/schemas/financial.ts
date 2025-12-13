@@ -4,6 +4,8 @@
 
 import { type } from 'arktype'
 
+import { percentage } from './common.js'
+
 /**
  * Credit card number using Luhn algorithm validation
  */
@@ -71,10 +73,8 @@ export const price = type('number > 0').narrow((n, ctx) => {
 	return true
 })
 
-/**
- * Percentage (0-100)
- */
-export const percentage = type('number >= 0 & number <= 100')
+// Re-export percentage from common
+export { percentage }
 
 /**
  * IBAN (International Bank Account Number)
