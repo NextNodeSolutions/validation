@@ -19,6 +19,8 @@ const errorFormatter = new DefaultErrorFormatter()
 
 /**
  * Converts validation issues to React Hook Form FieldErrors
+ *
+ * RHF requires message field - uses code (frontend handles i18n)
  */
 const issuesToFieldErrors = <T>(
 	issues: readonly ValidationIssue[],
@@ -27,14 +29,14 @@ const issuesToFieldErrors = <T>(
 	const errors: Record<string, FieldError> = {}
 
 	for (const issue of issues) {
-		const path = issue.path.join('.')
+		const path = (issue.path ?? []).join('.')
 
 		if (!path) continue
 
 		if (!errors[path]) {
 			errors[path] = {
 				type: issue.code,
-				message: issue.message,
+				message: issue.code,
 			}
 		}
 
@@ -42,7 +44,7 @@ const issuesToFieldErrors = <T>(
 			const types = errors[path].types ?? {}
 			errors[path].types = {
 				...types,
-				[issue.code]: issue.message,
+				[issue.code]: issue.code,
 			}
 		}
 	}

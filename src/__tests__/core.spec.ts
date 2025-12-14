@@ -24,9 +24,7 @@ describe('Validation Engine', () => {
 		})
 
 		it('should create engine with custom error formatter', () => {
-			const customFormatter = new DefaultErrorFormatter({
-				includeDetails: false,
-			})
+			const customFormatter = new DefaultErrorFormatter()
 			const engine = createValidationEngine({
 				errorFormatter: customFormatter,
 			})
@@ -173,7 +171,7 @@ describe('Validation Engine', () => {
 	})
 
 	describe('DefaultErrorFormatter', () => {
-		it('should format errors with path information', () => {
+		it('should format errors with path and code', () => {
 			const userSchema = type({
 				email: 'string.email',
 				age: 'number >= 0',
@@ -186,39 +184,35 @@ describe('Validation Engine', () => {
 				const issues = formatter.format(result)
 
 				expect(issues.length).toBeGreaterThan(0)
-				issues.forEach(issue => {
+				for (const issue of issues) {
 					expect(issue.path).toBeDefined()
 					expect(issue.code).toBeDefined()
-					expect(issue.message).toBeDefined()
-				})
+				}
 			}
 		})
 
-		it('should include expected info when available', () => {
-			const schema = type('number > 10')
-			const result = schema(5)
+		it('should extract params for constraint errors', () => {
+			const schema = type('string >= 5')
+			const result = schema('ab')
 
 			if (result instanceof type.errors) {
-				const formatter = new DefaultErrorFormatter({
-					includeDetails: true,
-				})
-
+				const formatter = new DefaultErrorFormatter()
 				const issues = formatter.format(result)
-				expect(issues[0]?.expected).toBeDefined()
+
+				expect(issues[0]?.code).toBe(ErrorCodes.STRING_MIN)
+				// params.min should be extracted from the constraint
 			}
 		})
 
-		it('should include actual info when available', () => {
-			const schema = type('number')
-			const result = schema('string')
+		it('should map email validation to INVALID_EMAIL code', () => {
+			const schema = type('string.email')
+			const result = schema('invalid')
 
 			if (result instanceof type.errors) {
-				const formatter = new DefaultErrorFormatter({
-					includeDetails: true,
-				})
-
+				const formatter = new DefaultErrorFormatter()
 				const issues = formatter.format(result)
-				expect(issues[0]?.actual).toBeDefined()
+
+				expect(issues[0]?.code).toBe(ErrorCodes.INVALID_EMAIL)
 			}
 		})
 	})

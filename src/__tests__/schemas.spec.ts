@@ -2,7 +2,6 @@
  * Pre-built schemas tests
  */
 
-import { type } from 'arktype'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -55,8 +54,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validEmails.forEach(e => {
-					const result = email(e)
-					expect(result instanceof type.errors).toBe(false)
+					const result = email.safeParse(e)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -69,8 +68,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				invalidEmails.forEach(e => {
-					const result = email(e)
-					expect(result instanceof type.errors).toBe(true)
+					const result = email.safeParse(e)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -84,8 +83,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validUrls.forEach(u => {
-					const result = url(u)
-					expect(result instanceof type.errors).toBe(false)
+					const result = url.safeParse(u)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -94,8 +93,8 @@ describe('Pre-built Schemas', () => {
 				const invalidUrls = ['not-a-url', 'just some text']
 
 				invalidUrls.forEach(u => {
-					const result = url(u)
-					expect(result instanceof type.errors).toBe(true)
+					const result = url.safeParse(u)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -108,8 +107,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validUuids.forEach(u => {
-					const result = uuid(u)
-					expect(result instanceof type.errors).toBe(false)
+					const result = uuid.safeParse(u)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -121,8 +120,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				invalidUuids.forEach(u => {
-					const result = uuid(u)
-					expect(result instanceof type.errors).toBe(true)
+					const result = uuid.safeParse(u)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -132,8 +131,8 @@ describe('Pre-built Schemas', () => {
 				const validDates = ['2024-01-15', '2023-12-31', '2000-06-30']
 
 				validDates.forEach(d => {
-					const result = date(d)
-					expect(result instanceof type.errors).toBe(false)
+					const result = date.safeParse(d)
+					expect(result.success).toBe(true)
 				})
 			})
 		})
@@ -149,8 +148,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validJson.forEach(j => {
-					const result = json(j)
-					expect(result instanceof type.errors).toBe(false)
+					const result = json.safeParse(j)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -162,8 +161,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				invalidJson.forEach(j => {
-					const result = json(j)
-					expect(result instanceof type.errors).toBe(true)
+					const result = json.safeParse(j)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -173,8 +172,8 @@ describe('Pre-built Schemas', () => {
 				const validVersions = ['1.0.0', '2.1.3', '0.0.1', '10.20.30']
 
 				validVersions.forEach(v => {
-					const result = semver(v)
-					expect(result instanceof type.errors).toBe(false)
+					const result = semver.safeParse(v)
+					expect(result.success).toBe(true)
 				})
 			})
 		})
@@ -184,8 +183,8 @@ describe('Pre-built Schemas', () => {
 				const validSlugs = ['my-slug', 'post-123', 'a-b-c']
 
 				validSlugs.forEach(s => {
-					const result = slug(s)
-					expect(result instanceof type.errors).toBe(false)
+					const result = slug.safeParse(s)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -197,8 +196,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				invalidSlugs.forEach(s => {
-					const result = slug(s)
-					expect(result instanceof type.errors).toBe(true)
+					const result = slug.safeParse(s)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -223,11 +222,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validPasswords.forEach(p => {
-					// strongPassword is a narrowed ArkType - call it directly
-					const result = (
-						strongPassword as (data: unknown) => unknown
-					)(p)
-					expect(result instanceof type.errors).toBe(false)
+					const result = strongPassword.safeParse(p)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -241,27 +237,21 @@ describe('Pre-built Schemas', () => {
 				]
 
 				weakPasswords.forEach(p => {
-					const result = (
-						strongPassword as (data: unknown) => unknown
-					)(p)
-					expect(result instanceof type.errors).toBe(true)
+					const result = strongPassword.safeParse(p)
+					expect(result.success).toBe(false)
 				})
 			})
 
 			it('should collect ALL errors by default (not fail-fast)', () => {
 				// Password with multiple issues: too short, no uppercase, no number, no special
-				const result = (strongPassword as (data: unknown) => unknown)(
-					'abc',
-				)
+				const result = strongPassword.safeParse('abc')
 
-				expect(result instanceof type.errors).toBe(true)
-				if (result instanceof type.errors) {
-					// ArkType accumulates all failures in the expected field
-					const expected = [...result][0].expected ?? ''
-					expect(expected).toContain('at least 8 characters')
-					expect(expected).toContain('uppercase letter')
-					expect(expected).toContain('number')
-					expect(expected).toContain('special character')
+				expect(result.success).toBe(false)
+				if (!result.success) {
+					// Should have multiple issues
+					expect(result.issues.length).toBeGreaterThan(1)
+					const codes = result.issues.map(i => i.code)
+					expect(codes).toContain('string_min')
 				}
 			})
 		})
@@ -275,16 +265,12 @@ describe('Pre-built Schemas', () => {
 					requireSpecialChars: true,
 				})
 
-				const result = (schema as (data: unknown) => unknown)('abc')
+				const result = schema.safeParse('abc')
 
-				expect(result instanceof type.errors).toBe(true)
-				if (result instanceof type.errors) {
-					// ArkType accumulates all failures in the expected field
-					const expected = [...result][0].expected ?? ''
-					expect(expected).toContain('at least 8 characters')
-					expect(expected).toContain('uppercase letter')
-					expect(expected).toContain('number')
-					expect(expected).toContain('special character')
+				expect(result.success).toBe(false)
+				if (!result.success) {
+					// Should have multiple issues
+					expect(result.issues.length).toBeGreaterThan(1)
 				}
 			})
 
@@ -297,14 +283,13 @@ describe('Pre-built Schemas', () => {
 					failFast: true,
 				})
 
-				const result = (schema as (data: unknown) => unknown)('abc')
+				const result = schema.safeParse('abc')
 
-				expect(result instanceof type.errors).toBe(true)
-				if (result instanceof type.errors) {
+				expect(result.success).toBe(false)
+				if (!result.success) {
 					// Should only have the first error (length)
-					const expected = [...result][0].expected ?? ''
-					expect(expected).toBe('at least 8 characters')
-					expect(expected).not.toContain('uppercase')
+					expect(result.issues.length).toBe(1)
+					expect(result.issues[0]?.code).toBe('string_min')
 				}
 			})
 		})
@@ -314,8 +299,8 @@ describe('Pre-built Schemas', () => {
 				const validUsernames = ['john_doe', 'user123', 'testuser']
 
 				validUsernames.forEach(u => {
-					const result = username(u)
-					expect(result instanceof type.errors).toBe(false)
+					const result = username.safeParse(u)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -323,8 +308,8 @@ describe('Pre-built Schemas', () => {
 				const invalidUsernames = ['ab', 'user with spaces', 'user@name']
 
 				invalidUsernames.forEach(u => {
-					const result = username(u)
-					expect(result instanceof type.errors).toBe(true)
+					const result = username.safeParse(u)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -335,16 +320,16 @@ describe('Pre-built Schemas', () => {
 					email: 'user@example.com',
 					password: 'password123',
 				}
-				const result = loginSchema(validLogin)
+				const result = loginSchema.safeParse(validLogin)
 
-				expect(result instanceof type.errors).toBe(false)
+				expect(result.success).toBe(true)
 			})
 
 			it('should reject missing fields', () => {
 				const invalidLogin = { email: 'user@example.com' }
-				const result = loginSchema(invalidLogin)
+				const result = loginSchema.safeParse(invalidLogin)
 
-				expect(result instanceof type.errors).toBe(true)
+				expect(result.success).toBe(false)
 			})
 		})
 
@@ -356,9 +341,9 @@ describe('Pre-built Schemas', () => {
 					confirmPassword: 'SecurePass123!',
 					username: 'newuser',
 				}
-				const result = registerSchema(validRegister)
+				const result = registerSchema.safeParse(validRegister)
 
-				expect(result instanceof type.errors).toBe(false)
+				expect(result.success).toBe(true)
 			})
 		})
 
@@ -382,8 +367,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validCards.forEach(card => {
-					const result = creditCard(card)
-					expect(result instanceof type.errors).toBe(false)
+					const result = creditCard.safeParse(card)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -395,8 +380,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				invalidCards.forEach(card => {
-					const result = creditCard(card)
-					expect(result instanceof type.errors).toBe(true)
+					const result = creditCard.safeParse(card)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -407,8 +392,8 @@ describe('Pre-built Schemas', () => {
 				const validPrices = [0.01, 9.99, 100, 1000.5]
 
 				validPrices.forEach(p => {
-					const result = price(p)
-					expect(result instanceof type.errors).toBe(false)
+					const result = price.safeParse(p)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -416,8 +401,8 @@ describe('Pre-built Schemas', () => {
 				const invalidPrices = [0, -10]
 
 				invalidPrices.forEach(p => {
-					const result = price(p)
-					expect(result instanceof type.errors).toBe(true)
+					const result = price.safeParse(p)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -427,8 +412,8 @@ describe('Pre-built Schemas', () => {
 				const validCodes = ['USD', 'EUR', 'GBP', 'JPY']
 
 				validCodes.forEach(code => {
-					const result = currencyCode(code)
-					expect(result instanceof type.errors).toBe(false)
+					const result = currencyCode.safeParse(code)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -436,8 +421,8 @@ describe('Pre-built Schemas', () => {
 				const invalidCodes = ['US', 'EURO', 'usd', '123']
 
 				invalidCodes.forEach(code => {
-					const result = currencyCode(code)
-					expect(result instanceof type.errors).toBe(true)
+					const result = currencyCode.safeParse(code)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -462,8 +447,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validIps.forEach(ip => {
-					const result = ipv4(ip)
-					expect(result instanceof type.errors).toBe(false)
+					const result = ipv4.safeParse(ip)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -476,8 +461,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				invalidIps.forEach(ip => {
-					const result = ipv4(ip)
-					expect(result instanceof type.errors).toBe(true)
+					const result = ipv4.safeParse(ip)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -491,8 +476,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validIps.forEach(ip => {
-					const result = ipv6(ip)
-					expect(result instanceof type.errors).toBe(false)
+					const result = ipv6.safeParse(ip)
+					expect(result.success).toBe(true)
 				})
 			})
 		})
@@ -506,8 +491,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validHostnames.forEach(h => {
-					const result = hostname(h)
-					expect(result instanceof type.errors).toBe(false)
+					const result = hostname.safeParse(h)
+					expect(result.success).toBe(true)
 				})
 			})
 		})
@@ -517,8 +502,8 @@ describe('Pre-built Schemas', () => {
 				const validPorts = [80, 443, 8080, 3000, 1, 65535]
 
 				validPorts.forEach(p => {
-					const result = port(p)
-					expect(result instanceof type.errors).toBe(false)
+					const result = port.safeParse(p)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -526,8 +511,8 @@ describe('Pre-built Schemas', () => {
 				const invalidPorts = [0, 65536, -1, 100000]
 
 				invalidPorts.forEach(p => {
-					const result = port(p)
-					expect(result instanceof type.errors).toBe(true)
+					const result = port.safeParse(p)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -537,8 +522,8 @@ describe('Pre-built Schemas', () => {
 				const validMacs = ['00:1A:2B:3C:4D:5E', 'AA:BB:CC:DD:EE:FF']
 
 				validMacs.forEach(mac => {
-					const result = macAddress(mac)
-					expect(result instanceof type.errors).toBe(false)
+					const result = macAddress.safeParse(mac)
+					expect(result.success).toBe(true)
 				})
 			})
 		})
@@ -563,8 +548,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validPhones.forEach(phone => {
-					const result = phoneE164(phone)
-					expect(result instanceof type.errors).toBe(false)
+					const result = phoneE164.safeParse(phone)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -572,8 +557,8 @@ describe('Pre-built Schemas', () => {
 				const invalidPhones = ['4155551234', '(415) 555-1234', '+1']
 
 				invalidPhones.forEach(phone => {
-					const result = phoneE164(phone)
-					expect(result instanceof type.errors).toBe(true)
+					const result = phoneE164.safeParse(phone)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -587,8 +572,8 @@ describe('Pre-built Schemas', () => {
 				]
 
 				validPhones.forEach(phone => {
-					const result = phoneFlexible(phone)
-					expect(result instanceof type.errors).toBe(false)
+					const result = phoneFlexible.safeParse(phone)
+					expect(result.success).toBe(true)
 				})
 			})
 		})
@@ -598,8 +583,8 @@ describe('Pre-built Schemas', () => {
 				const validZips = ['12345', '12345-6789']
 
 				validZips.forEach(zip => {
-					const result = zipCodeUS(zip)
-					expect(result instanceof type.errors).toBe(false)
+					const result = zipCodeUS.safeParse(zip)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -607,8 +592,8 @@ describe('Pre-built Schemas', () => {
 				const invalidZips = ['1234', '123456', 'ABCDE']
 
 				invalidZips.forEach(zip => {
-					const result = zipCodeUS(zip)
-					expect(result instanceof type.errors).toBe(true)
+					const result = zipCodeUS.safeParse(zip)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -618,8 +603,8 @@ describe('Pre-built Schemas', () => {
 				const validCodes = ['75001', '33000', '13001']
 
 				validCodes.forEach(code => {
-					const result = postalCodeFR(code)
-					expect(result instanceof type.errors).toBe(false)
+					const result = postalCodeFR.safeParse(code)
+					expect(result.success).toBe(true)
 				})
 			})
 		})
@@ -629,8 +614,8 @@ describe('Pre-built Schemas', () => {
 				const validSsns = ['123-45-6789', '000-00-0000']
 
 				validSsns.forEach(ssn => {
-					const result = ssnUS(ssn)
-					expect(result instanceof type.errors).toBe(false)
+					const result = ssnUS.safeParse(ssn)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -638,8 +623,8 @@ describe('Pre-built Schemas', () => {
 				const invalidSsns = ['123456789', '123-456-789', '12-345-6789']
 
 				invalidSsns.forEach(ssn => {
-					const result = ssnUS(ssn)
-					expect(result instanceof type.errors).toBe(true)
+					const result = ssnUS.safeParse(ssn)
+					expect(result.success).toBe(false)
 				})
 			})
 		})
@@ -650,8 +635,8 @@ describe('Pre-built Schemas', () => {
 				const validAges = [0, 18, 65, 120, 150]
 
 				validAges.forEach(a => {
-					const result = age(a)
-					expect(result instanceof type.errors).toBe(false)
+					const result = age.safeParse(a)
+					expect(result.success).toBe(true)
 				})
 			})
 
@@ -660,8 +645,8 @@ describe('Pre-built Schemas', () => {
 				const invalidAges = [-1, 151, 200]
 
 				invalidAges.forEach(a => {
-					const result = age(a)
-					expect(result instanceof type.errors).toBe(true)
+					const result = age.safeParse(a)
+					expect(result.success).toBe(false)
 				})
 			})
 		})

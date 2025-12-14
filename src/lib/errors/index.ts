@@ -7,7 +7,5 @@ export { createErrorFormatter, DefaultErrorFormatter } from './formatter.js'
 export type {
 	ErrorFormatter,
 	ErrorFormatterConfig,
-	MessageContext,
-	MessageTemplate,
 	ValidationIssue,
 } from './types.js'

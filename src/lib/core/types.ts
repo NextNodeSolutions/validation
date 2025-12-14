@@ -7,18 +7,16 @@ import type { Type } from 'arktype'
 /**
  * Structured validation error with path tracking
  * Designed for form field binding and i18n support
+ *
+ * Frontend usage: t(`validation.${code}`, params)
  */
 export interface ValidationIssue {
-	/** Path to the invalid field (e.g., ['user', 'email']) */
-	readonly path: ReadonlyArray<string | number>
-	/** Machine-readable error code for i18n */
+	/** Path to the invalid field (e.g., ['user', 'email']). Omitted for simple schemas. */
+	readonly path?: ReadonlyArray<string | number>
+	/** Machine-readable error code for i18n lookup */
 	readonly code: string
-	/** Human-readable error message */
-	readonly message: string
-	/** Expected value/type description */
-	readonly expected?: string | undefined
-	/** Actual value received (sanitized) */
-	readonly actual?: string | undefined
+	/** Interpolation params for i18n messages (e.g., { min: 8 }) */
+	readonly params?: Readonly<Record<string, unknown>>
 }
 
 /**

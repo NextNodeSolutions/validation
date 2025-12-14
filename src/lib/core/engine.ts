@@ -25,7 +25,7 @@ export class ValidationError extends Error {
 	readonly issues: readonly ValidationIssue[]
 
 	constructor(issues: readonly ValidationIssue[]) {
-		const summary = issues.map(i => i.message).join(', ')
+		const summary = issues.map(i => i.code).join(', ')
 		super(`Validation failed: ${summary}`)
 		this.name = 'ValidationError'
 		this.issues = issues
