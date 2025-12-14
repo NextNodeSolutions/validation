@@ -7,8 +7,9 @@ import { describe, expect, it } from 'vitest'
 import {
 	age,
 	// Auth
+	apiKey,
+	apiKeyWithPrefix,
 	authSchemas,
-	createApiKey,
 	createPasswordSchema,
 	creditCard,
 	currencyCode,
@@ -357,31 +358,46 @@ describe('Pre-built Schemas', () => {
 			})
 		})
 
-		describe('createApiKey', () => {
+		describe('apiKey', () => {
+			it('should validate API keys (32+ alphanumeric)', () => {
+				const validKey = 'A'.repeat(32)
+				const tooShort = 'A'.repeat(31)
+
+				expect(apiKey.safeParse(validKey).success).toBe(true)
+				expect(apiKey.safeParse(tooShort).success).toBe(false)
+			})
+
+			it('should reject keys with prefix (use apiKeyWithPrefix instead)', () => {
+				const withPrefix = `sk_${'A'.repeat(32)}`
+				expect(apiKey.safeParse(withPrefix).success).toBe(false)
+			})
+		})
+
+		describe('apiKeyWithPrefix', () => {
 			it('should throw on invalid prefix with regex metacharacters', () => {
-				expect(() => createApiKey('.*')).toThrow(
+				expect(() => apiKeyWithPrefix('.*')).toThrow(
 					'API key prefix must contain only alphanumeric characters or underscores',
 				)
-				expect(() => createApiKey('prefix(test)')).toThrow()
-				expect(() => createApiKey('a+b')).toThrow()
-				expect(() => createApiKey('test$')).toThrow()
-				expect(() => createApiKey('bad^prefix')).toThrow()
+				expect(() => apiKeyWithPrefix('prefix(test)')).toThrow()
+				expect(() => apiKeyWithPrefix('a+b')).toThrow()
+				expect(() => apiKeyWithPrefix('test$')).toThrow()
+				expect(() => apiKeyWithPrefix('bad^prefix')).toThrow()
 			})
 
 			it('should accept valid alphanumeric prefixes', () => {
-				expect(() => createApiKey('sk')).not.toThrow()
-				expect(() => createApiKey('prod_api')).not.toThrow()
-				expect(() => createApiKey('test123')).not.toThrow()
-				expect(() => createApiKey('API_KEY_V2')).not.toThrow()
+				expect(() => apiKeyWithPrefix('sk')).not.toThrow()
+				expect(() => apiKeyWithPrefix('prod_api')).not.toThrow()
+				expect(() => apiKeyWithPrefix('test123')).not.toThrow()
+				expect(() => apiKeyWithPrefix('API_KEY_V2')).not.toThrow()
 			})
 
-			it('should validate API keys with custom prefix', () => {
-				const customApiKey = createApiKey('prod')
+			it('should validate API keys with given prefix', () => {
+				const prodKey = apiKeyWithPrefix('prod')
 				const validKey = `prod_${'A'.repeat(32)}`
 				const invalidKey = `sk_${'A'.repeat(32)}`
 
-				expect(customApiKey.safeParse(validKey).success).toBe(true)
-				expect(customApiKey.safeParse(invalidKey).success).toBe(false)
+				expect(prodKey.safeParse(validKey).success).toBe(true)
+				expect(prodKey.safeParse(invalidKey).success).toBe(false)
 			})
 		})
 	})

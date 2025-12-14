@@ -31,11 +31,25 @@ export const jwtToken = v.schema(
 )
 
 /**
- * API key format with configurable prefix
+ * API key validation schema (32+ alphanumeric characters)
+ * @example
+ * ```typescript
+ * apiKey.safeParse('abc123xyz789...')
+ * ```
+ */
+export const apiKey = v.schema(type(/^[A-Za-z0-9]{32,}$/))
+
+/**
+ * API key validation schema with custom prefix
  * @param prefix - Must contain only alphanumeric characters or underscores
  * @throws Error if prefix contains invalid characters (regex metacharacters)
+ * @example
+ * ```typescript
+ * const stripeKey = apiKeyWithPrefix('sk')
+ * stripeKey.safeParse('sk_abc123...')
+ * ```
  */
-export const createApiKey = (prefix = 'sk'): Schema<string> => {
+export const apiKeyWithPrefix = (prefix: string): Schema<string> => {
 	if (!/^[a-zA-Z0-9_]+$/.test(prefix)) {
 		throw new Error(
 			'API key prefix must contain only alphanumeric characters or underscores',
@@ -43,11 +57,6 @@ export const createApiKey = (prefix = 'sk'): Schema<string> => {
 	}
 	return v.schema(type(new RegExp(`^${prefix}_[A-Za-z0-9]{32,}$`)))
 }
-
-/**
- * Default API key (sk_ prefix)
- */
-export const apiKey = createApiKey('sk')
 
 /**
  * Password validation rule
@@ -225,6 +234,6 @@ export const authSchemas = {
 	passwordResetSchema,
 
 	// Factory functions
-	createApiKey,
+	apiKeyWithPrefix,
 	createPasswordSchema,
 } as const

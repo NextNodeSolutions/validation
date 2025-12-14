@@ -6,9 +6,9 @@ export type { PasswordRequirements } from './auth.js'
 // Auth
 export {
 	apiKey,
+	apiKeyWithPrefix,
 	authEmail,
 	authSchemas,
-	createApiKey,
 	createPasswordSchema,
 	jwtToken,
 	loginSchema,
