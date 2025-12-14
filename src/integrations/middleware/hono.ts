@@ -65,6 +65,11 @@ type HonoMiddleware = (
 ) => Promise<Response | undefined> | undefined
 
 /**
+ * Symbol used to indicate malformed JSON body
+ */
+const INVALID_JSON = Symbol.for('invalid_json')
+
+/**
  * Get request data based on target
  */
 const getRequestData = async (
@@ -73,7 +78,7 @@ const getRequestData = async (
 ): Promise<unknown> => {
 	switch (target) {
 		case 'body':
-			return c.req.json().catch(() => ({}))
+			return c.req.json().catch(() => INVALID_JSON)
 		case 'query':
 			return c.req.query()
 		case 'params':
@@ -83,6 +88,21 @@ const getRequestData = async (
 		default:
 			return {}
 	}
+}
+
+/**
+ * Handle validation errors with optional custom handler
+ */
+const handleValidationError = (
+	issues: readonly ValidationIssue[],
+	c: HonoContext,
+	options: HonoValidatorOptions,
+): Response => {
+	if (options.onError) {
+		const customResponse = options.onError(issues, c)
+		if (customResponse) return customResponse
+	}
+	return c.json(createErrorResponse(issues), 400)
 }
 
 /**
@@ -96,15 +116,20 @@ export const honoValidator =
 	): HonoMiddleware =>
 	async (c, next): Promise<Response | undefined> => {
 		const data = await getRequestData(c, target)
+
+		// Handle malformed JSON body
+		if (data === INVALID_JSON) {
+			return handleValidationError(
+				[{ path: [], code: 'invalid_json' }],
+				c,
+				options,
+			)
+		}
+
 		const result = validateData(schema, data)
 
 		if (!result.success) {
-			if (options.onError) {
-				const response = options.onError(result.issues, c)
-				if (response) return response
-			}
-
-			return c.json(createErrorResponse(result.issues), 400)
+			return handleValidationError(result.issues, c, options)
 		}
 
 		// Store validated data for retrieval in handler

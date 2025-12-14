@@ -8,6 +8,7 @@ import {
 	age,
 	// Auth
 	authSchemas,
+	createApiKey,
 	createPasswordSchema,
 	creditCard,
 	currencyCode,
@@ -353,6 +354,34 @@ describe('Pre-built Schemas', () => {
 				expect(authSchemas.registerSchema).toBeDefined()
 				expect(authSchemas.strongPassword).toBeDefined()
 				expect(authSchemas.username).toBeDefined()
+			})
+		})
+
+		describe('createApiKey', () => {
+			it('should throw on invalid prefix with regex metacharacters', () => {
+				expect(() => createApiKey('.*')).toThrow(
+					'API key prefix must contain only alphanumeric characters or underscores',
+				)
+				expect(() => createApiKey('prefix(test)')).toThrow()
+				expect(() => createApiKey('a+b')).toThrow()
+				expect(() => createApiKey('test$')).toThrow()
+				expect(() => createApiKey('bad^prefix')).toThrow()
+			})
+
+			it('should accept valid alphanumeric prefixes', () => {
+				expect(() => createApiKey('sk')).not.toThrow()
+				expect(() => createApiKey('prod_api')).not.toThrow()
+				expect(() => createApiKey('test123')).not.toThrow()
+				expect(() => createApiKey('API_KEY_V2')).not.toThrow()
+			})
+
+			it('should validate API keys with custom prefix', () => {
+				const customApiKey = createApiKey('prod')
+				const validKey = `prod_${'A'.repeat(32)}`
+				const invalidKey = `sk_${'A'.repeat(32)}`
+
+				expect(customApiKey.safeParse(validKey).success).toBe(true)
+				expect(customApiKey.safeParse(invalidKey).success).toBe(false)
 			})
 		})
 	})

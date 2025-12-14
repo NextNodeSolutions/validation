@@ -32,9 +32,17 @@ export const jwtToken = v.schema(
 
 /**
  * API key format with configurable prefix
+ * @param prefix - Must contain only alphanumeric characters or underscores
+ * @throws Error if prefix contains invalid characters (regex metacharacters)
  */
-export const createApiKey = (prefix = 'sk'): Schema<string> =>
-	v.schema(type(new RegExp(`^${prefix}_[A-Za-z0-9]{32,}$`)))
+export const createApiKey = (prefix = 'sk'): Schema<string> => {
+	if (!/^[a-zA-Z0-9_]+$/.test(prefix)) {
+		throw new Error(
+			'API key prefix must contain only alphanumeric characters or underscores',
+		)
+	}
+	return v.schema(type(new RegExp(`^${prefix}_[A-Za-z0-9]{32,}$`)))
+}
 
 /**
  * Default API key (sk_ prefix)
