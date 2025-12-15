@@ -84,6 +84,5 @@ export {
 	macAddress,
 	networkSchemas,
 	port,
-	safeWebhookUrl,
 	urlSlug,
 } from './network.js'

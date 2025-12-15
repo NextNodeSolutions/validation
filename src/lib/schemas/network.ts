@@ -116,44 +116,6 @@ export const domain = v.schema(
 export const urlSlug = slug
 
 /**
- * Check if hostname is private/internal (SSRF protection)
- */
-const isPrivateHost = (host: string): boolean => {
-	if (host === 'localhost' || host === '127.0.0.1' || host === '::1')
-		return true
-
-	const match = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/)
-	if (!match) return false
-
-	const a = Number(match[1])
-	const b = Number(match[2])
-	return (
-		a === 10 ||
-		(a === 172 && b >= 16 && b <= 31) ||
-		(a === 192 && b === 168) ||
-		(a === 169 && b === 254)
-	)
-}
-
-/**
- * SSRF-safe webhook URL
- * Validates URL format and blocks private/internal addresses
- * - Requires HTTPS protocol
- * - Blocks localhost (localhost, 127.0.0.1, ::1)
- * - Blocks private IP ranges (10.x, 172.16-31.x, 192.168.x)
- * - Blocks cloud metadata endpoints (169.254.x.x)
- */
-export const safeWebhookUrl = v.schema(
-	type('string.url').pipe(url => {
-		const parsed = new URL(url)
-		if (parsed.protocol !== 'https:') throw new Error('HTTPS required')
-		if (isPrivateHost(parsed.hostname))
-			throw new Error('Private hosts blocked')
-		return url
-	}),
-)
-
-/**
  * Bundled network schemas
  */
 export const networkSchemas = {
@@ -161,7 +123,6 @@ export const networkSchemas = {
 	ipv6,
 	ip,
 	url,
-	safeWebhookUrl,
 	hostname,
 	port,
 	macAddress,
