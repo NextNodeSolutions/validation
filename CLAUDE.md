@@ -1,348 +1,427 @@
-# CLAUDE.md - Library Template
+# CLAUDE.md - @nextnode/validation
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with the validation library.
 
 ## Project Overview
 
-This is a **library template** for NextNode TypeScript packages. It follows the established patterns from `@nextnode/config-manager` and `@nextnode/logger` with modern CI/CD workflows and comprehensive tooling.
+`@nextnode/validation` is a TypeScript validation library powered by **ArkType** for comprehensive input validation on both frontend and backend in NextNode projects.
 
-**Template Features:**
-- **TypeScript strict mode** with maximum type safety
-- **ESM-only package** with proper exports configuration
-- **Modern CI/CD** with automated version management and publishing
-- **Comprehensive tooling** (ESLint, Biome, Vitest, Husky)
-- **Automated release management** with changesets and NPM provenance
+**Key Features:**
 
-## Template Structure
+- ArkType-powered validation with full TypeScript type inference
+- Pre-built validators (50+ schemas: email, URL, UUID, credit card, phone, passwords, etc.)
+- React Hook Form integration via `arktypeResolver`
+- Server middleware for Hono, Express, and Fastify
+- Structured error format with error codes for i18n support
+- Factory functions for configurable validators
+- Tree-shakeable exports
+
+## Project Structure
 
 ```
-library/
-├── .changeset/              # Version management configuration
-├── .github/workflows/       # CI/CD workflows (test, version, publish)
-├── .husky/                  # Git hooks configuration
-├── src/                     # Source code
-│   ├── lib/                # Core library modules
-│   ├── types/              # Type definitions
-│   ├── utils/              # Utility functions (includes logger)
-│   ├── __tests__/          # Test files with examples
-│   └── index.ts            # Main export file
-├── package.json            # Package configuration
-├── tsconfig.json           # TypeScript config (development)
-├── tsconfig.build.json     # TypeScript config (build)
-├── vitest.config.ts        # Test configuration
-├── eslint.config.mjs       # ESLint configuration
-├── biome.json              # Formatting configuration
-└── template_config.json    # Template generation config
+src/
+├── index.ts                    # Main exports (type, Type, v, schemas)
+├── lib/
+│   ├── core/
+│   │   ├── engine.ts           # Validation engine (v.schema, v.define, v.object)
+│   │   ├── types.ts            # ValidationResult, ValidationIssue, Schema
+│   │   └── index.ts
+│   ├── errors/
+│   │   ├── formatter.ts        # DefaultErrorFormatter
+│   │   ├── codes.ts            # ErrorCodes constants
+│   │   ├── types.ts            # Error types
+│   │   └── index.ts
+│   ├── schemas/
+│   │   ├── common.ts           # email, url, uuid, date, json, base64, slug, semver
+│   │   ├── auth.ts             # password, username, login/register, jwtToken, apiKey
+│   │   ├── financial.ts        # creditCard, price, iban, bic, currencyCode
+│   │   ├── network.ts          # ip, hostname, port, macAddress, domain
+│   │   ├── identity.ts         # phone, ssn, postalCode, age, birthDate
+│   │   └── index.ts
+│   └── index.ts
+├── integrations/
+│   ├── react-hook-form/
+│   │   ├── resolver.ts         # arktypeResolver
+│   │   ├── types.ts
+│   │   └── index.ts
+│   ├── middleware/
+│   │   ├── core.ts             # validateData, createErrorResponse
+│   │   ├── hono.ts             # honoValidator
+│   │   ├── express.ts          # expressValidator
+│   │   ├── fastify.ts          # fastifyValidator
+│   │   ├── types.ts
+│   │   └── index.ts
+│   └── index.ts
+├── utils/
+│   ├── logger.ts               # Scoped loggers (coreLogger, middlewareLogger, etc.)
+│   └── index.ts
+└── __tests__/                  # Test files (119 tests)
+    ├── core.spec.ts
+    ├── schemas.spec.ts
+    ├── resolver.spec.ts
+    ├── middleware.spec.ts
+    ├── logger.spec.ts
+    ├── utils.spec.ts
+    └── setup.ts
 ```
 
 ## Development Commands
 
-### Build & Development
 ```bash
-pnpm build              # Build library (clean + tsc + tsc-alias)
-pnpm clean              # Remove dist directory
+pnpm build              # Build library
+pnpm test               # Run tests (119 tests)
+pnpm test:watch         # Watch mode
+pnpm test:coverage      # Coverage report
 pnpm type-check         # TypeScript validation
+pnpm lint               # Biome linting with auto-fix
+pnpm format             # Biome formatting
 ```
 
-### Testing
-```bash
-pnpm test               # Run tests once
-pnpm test:watch         # Watch mode for tests
-pnpm test:coverage      # Generate coverage report
-pnpm test:ui            # Open Vitest UI
-```
-
-### Code Quality
-```bash
-pnpm lint               # ESLint with @nextnode/eslint-plugin (auto-fix)
-pnpm format             # Format with Biome
-```
-
-### Version Management & Publishing
-```bash
-pnpm changeset          # Create changeset for version bump
-pnpm changeset:version  # Update versions from changesets
-pnpm changeset:publish  # Publish to NPM registry
-```
-
-## CI/CD Workflows
-
-The template includes modern GitHub Actions workflows following NextNode standards:
-
-### Test Workflow (`test.yml`)
-- **Trigger**: Pull requests to main/master
-- **Node.js**: Version 24 (latest)
-- **Quality checks**: Lint, typecheck, tests, build
-- **Coverage**: Enabled by default
-
-### Version Management (`version.yml`)
-- **Trigger**: Pushes to main branch, manual dispatch
-- **Function**: Creates version bump PRs using changesets
-- **Auto-merge**: Enabled for automated workflow
-
-### Auto Publish (`auto-publish.yml`)
-- **Trigger**: Repository dispatch when version PR is merged
-- **Function**: Automatically publishes to NPM with provenance
-- **GitHub Releases**: Creates releases automatically
-
-### Manual Publish (`manual-publish.yml`)
-- **Trigger**: Manual workflow dispatch
-- **Function**: Emergency publishing without version PR
-
-### Changeset Check (`changeset-check.yml`)
-- **Trigger**: Pull request creation/updates
-- **Function**: Ensures changesets are added for source code changes
-- **Smart detection**: Only requires changesets for actual code changes
-
-## TypeScript Configuration
-
-### Strict Mode Settings
-- **Maximum type safety**: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
-- **ESNext modules**: Modern module resolution with bundler mode
-- **Path mapping**: `@/*` aliases for clean imports
-- **Build separation**: Development config with `noEmit`, separate build config
-
-### Module System
-- **ESM-only**: No CommonJS support, pure ES modules
-- **Exports**: Properly configured with types and import paths
-- **Extension mapping**: `.js` extensions in imports for Node.js compatibility
-
-## Template Variables
-
-The `template_config.json` defines replaceable variables:
-
-### Package.json Variables
-- `{{project_name}}`: Package name (e.g., `@nextnode/my-library`)
-- `{{project_description}}`: Package description
-- `{{project_author}}`: Author information
-- `{{project_keywords}}`: Keywords array
-- `{{project_license}}`: License type
-- `{{project_version}}`: Initial version
-
-### Repository Variables
-- Used in changeset configuration and README updates
-- Automatically replaced during template generation
-
-## Code Quality Standards
-
-### ESLint Configuration
-- Uses `@nextnode/eslint-plugin` for consistent NextNode standards
-- **Zero warnings policy**: `--max-warnings 0`
-- **Auto-fix enabled**: Automatically fixes issues during lint
-
-### Formatting
-- **Biome**: Fast alternative to Prettier
-- **No errors on unmatched**: Handles various file types gracefully
-- **Pre-commit hooks**: Automatic formatting before commits
-
-### Testing
-- **Vitest**: Modern test runner with built-in TypeScript support
-- **Coverage reporting**: V8 provider for accurate coverage
-- **UI testing**: Interactive test interface available
-
-## Dependency Management
-
-### Development Dependencies
-- **@nextnode/eslint-plugin**: Shared linting rules
-- **@biomejs/biome**: Modern formatting and linting
-- **@vitest/coverage-v8**: Test coverage reporting
-- **@changesets/cli**: Version management system
-- **typescript**, **tsc-alias**: TypeScript compilation with path mapping
-- **husky**, **lint-staged**: Git hooks and pre-commit checks
-
-### Production Dependencies
-- **@nextnode/logger**: Lightweight logging library with scope-based organization
-- Add other production dependencies based on library functionality  
-- Consider peer dependencies for framework integrations
-
-## Logging System
-
-The template includes a comprehensive logging system using `@nextnode/logger` with NextNode-specific conventions.
-
-### Logger Structure
+## Key Types
 
 ```typescript
-// Main loggers available
-import { 
-  logger,        // Main library logger
-  apiLogger,     // API-specific operations
-  coreLogger,    // Core functionality
-  utilsLogger,   // Utility functions
-  logDebug,      // Debug helper
-  logApiResponse,// API response helper
-  logError       // Error helper with context
-} from './utils/logger.js'
-```
+// Structured error format
+interface ValidationIssue {
+	path: ReadonlyArray<string | number> // ['user', 'email']
+	code: string // 'invalid_email'
+	message: string // 'must be a valid email'
+	expected?: string
+	actual?: string
+}
 
-### Usage Examples
+// Discriminated union result
+type ValidationResult<T> =
+	| { success: true; data: T }
+	| { success: false; issues: readonly ValidationIssue[] }
 
-#### Basic Logging
-```typescript
-import { coreLogger } from '../utils/logger.js'
+// Schema wrapper
+interface Schema<T> {
+	_type: Type<T> // Underlying ArkType
+	meta?: SchemaMetadata
+	validate(data: unknown): ValidationResult<T>
+	parse(data: unknown): T // throws ValidationError
+	safeParse(data: unknown): ValidationResult<T>
+}
 
-export const createClient = (options: ClientConfig) => {
-  coreLogger.info('Creating client instance', { 
-    hasApiKey: Boolean(options.apiKey) 
-  })
-  
-  // ... implementation
-  
-  coreLogger.info('Client created successfully')
+// Engine config
+interface ValidationEngineConfig {
+	errorFormatter?: ErrorFormatter
+	debug?: boolean
+	stripUnknown?: boolean
 }
 ```
 
-#### Error Logging with Context
-```typescript
-import { logError } from '../utils/logger.js'
+## Usage Patterns
 
+### Direct ArkType Usage
+
+```typescript
+import { type } from '@nextnode/validation'
+
+const userSchema = type({
+	email: 'string.email',
+	age: 'number >= 0',
+	'nickname?': 'string', // Optional with ?
+})
+
+const result = userSchema(data)
+if (result instanceof type.errors) {
+	console.error(result.summary)
+}
+```
+
+### Validation Engine
+
+```typescript
+import { v } from '@nextnode/validation'
+
+// Create schema with safeParse/parse methods
+const schema = v.object<{ email: string }>({
+	email: 'string.email',
+})
+
+const result = schema.safeParse(data)
+if (result.success) {
+	// result.data is typed
+}
+
+// Or use parse() which throws ValidationError
 try {
-  // ... some operation
-} catch (error) {
-  logError(error, { 
-    operation: 'data-processing',
-    userId: user.id,
-    timestamp: Date.now()
-  })
-  throw error
+	const data = schema.parse(input)
+} catch (e) {
+	if (e instanceof ValidationError) {
+		console.error(e.issues)
+	}
 }
 ```
 
-#### API Logging
+### Pre-built Schemas
+
 ```typescript
-import { logApiResponse } from '../utils/logger.js'
+import { schemas, authSchemas, financialSchemas } from '@nextnode/validation'
 
-// Log API responses with status and optional data
-logApiResponse('POST', '/api/users', 201, { userId: 123 })
-logApiResponse('GET', '/api/health', 200)
-```
+// Use directly
+const isValid = schemas.email('test@example.com')
 
-#### Debug Logging
-```typescript
-import { logDebug } from '../utils/logger.js'
-
-// Log complex objects for debugging
-logDebug('Configuration loaded', { 
-  config, 
-  environment: process.env.NODE_ENV 
+// Compose with type()
+import { type } from '@nextnode/validation'
+const paymentSchema = type({
+	email: schemas.email,
+	amount: financialSchemas.price,
 })
 ```
 
-### Logger Features
-
-- **Environment-aware**: Automatically formats for development (console) and production (JSON)
-- **Scoped prefixes**: Each logger has a specific prefix for easy filtering
-- **Location tracking**: Automatically captures call location in development
-- **Zero dependencies**: Lightweight with no external dependencies
-- **Type-safe**: Full TypeScript support with proper types
-- **Request tracking**: Automatic request ID generation for distributed tracing
-
-### Logging Best Practices
-
-1. **Use appropriate log levels**:
-   - `info`: Normal operation events
-   - `warn`: Warning conditions that should be noted
-   - `error`: Error conditions that require attention
-
-2. **Include relevant context**:
-   - Always provide meaningful context objects
-   - Include user IDs, request IDs, or operation identifiers
-   - Add timing information for performance monitoring
-
-3. **Use specialized loggers**:
-   - `coreLogger` for main library functionality
-   - `apiLogger` for HTTP/API operations
-   - `utilsLogger` for utility functions
-
-4. **Error handling**:
-   - Always use `logError` for caught exceptions
-   - Include original error and relevant context
-   - Don't log the same error multiple times in the call stack
-
-### Testing Logging
-
-The template includes comprehensive logger tests with mocking:
+### Factory Functions
 
 ```typescript
-// Mock the logger in tests
-vi.mock('../utils/logger.js', () => ({
-  coreLogger: { info: vi.fn() },
-  logError: vi.fn()
-}))
+import {
+	createPasswordSchema,
+	createApiKey,
+	stringLength,
+	numberRange,
+} from '@nextnode/validation'
 
-// Test that logging occurs
-expect(coreLogger.info).toHaveBeenCalledWith('Expected message', { data })
+// Custom password requirements
+const password = createPasswordSchema({
+	minLength: 12,
+	requireUppercase: true,
+	requireLowercase: true,
+	requireNumbers: true,
+	requireSpecialChars: true,
+})
+
+// Custom API key prefix
+const apiKey = createApiKey('prod') // prod_XXXXXXXX...
+
+// String length range
+const name = stringLength(2, 50)
+
+// Number range
+const age = numberRange(0, 120)
 ```
 
-## Release Management
+### React Hook Form
 
-### Automated Workflow
-1. **Development**: Create feature branches, implement changes
-2. **Changeset**: Run `pnpm changeset` to describe changes
-3. **Pull Request**: Create PR, automated checks run
-4. **Merge**: Version management creates version PR automatically
-5. **Auto-publish**: Version PR merge triggers NPM publishing
+```typescript
+import { arktypeResolver } from '@nextnode/validation/react-hook-form'
 
-### Manual Workflow
-- Use manual-publish workflow for emergency releases
-- Changeset check ensures proper version tracking
-- GitHub releases created automatically with changelog
-
-## Template Usage
-
-### From Template Generator
-```bash
-# Using NextNode project generator
-project-generator new library my-awesome-library
+const { register, handleSubmit } = useForm({
+	resolver: arktypeResolver(schema),
+})
 ```
 
-### Manual Setup
-1. Copy template files to new directory
-2. Replace template variables in package.json, README.md
-3. Update changeset configuration with correct repository
-4. Initialize git repository and push to GitHub
-5. Configure NPM_TOKEN secret for publishing
+### TanStack Form (Native Support)
 
-## Best Practices
+TanStack Form supports Standard Schema - use `type()` directly (no adapter needed):
 
-### Code Organization
-- **lib/**: Core library functionality, organized by feature
-- **types/**: TypeScript type definitions and interfaces
-- **utils/**: Shared utility functions and helpers
-- **index.ts**: Single entry point with clean exports
+```typescript
+import { useForm } from '@tanstack/react-form'
+import { type } from '@nextnode/validation'
 
-### Documentation
-- **README.md**: User-facing documentation with examples
-- **CHANGELOG.md**: Generated automatically by changesets
-- **API documentation**: Consider TypeDoc for complex libraries
+const schema = type({ email: 'string.email' })
 
-### Testing Strategy
-- **Unit tests**: Test individual functions and classes
-- **Integration tests**: Test module interactions
-- **Type tests**: Ensure TypeScript types work correctly
-- **Coverage**: Aim for >80% coverage on new code
+const form = useForm({
+	validators: { onChange: schema },
+})
+```
 
-### Version Management
-- **Semantic versioning**: Following semver standards
-- **Conventional commits**: Use conventional commit messages
-- **Changesets**: Always create changesets for changes affecting users
-- **Breaking changes**: Clearly document in changeset descriptions
+### Server Middleware
 
-## Environment Requirements
+```typescript
+// Hono
+import { honoValidator } from '@nextnode/validation/middleware/hono'
+app.post('/users', honoValidator('body', schema), handler)
 
-- **Node.js**: >=24.0.0 (latest LTS)
-- **pnpm**: 10.11.0+ (specified in packageManager)
-- **TypeScript**: 5.0+ for modern language features
-- **Git**: For version control and hooks
+// Express
+import { expressValidator } from '@nextnode/validation/middleware/express'
+app.post('/users', expressValidator('body', schema), handler)
 
-## Migration Notes
+// Fastify
+import { fastifyValidator } from '@nextnode/validation/middleware/fastify'
+fastify.post(
+	'/users',
+	{ preHandler: fastifyValidator('body', schema) },
+	handler,
+)
+```
 
-This template incorporates lessons learned from:
-- **@nextnode/config-manager**: Advanced TypeScript patterns, automated type generation
-- **@nextnode/logger**: Clean architecture, zero-dependency design
-- **Modern CI/CD**: Automated version management and publishing workflows
+## Complete Exports Reference
 
-### From Older Templates
-- Updated to Node 24 from Node 20
-- New release workflow system replacing single release.yml
-- Enhanced TypeScript strict mode settings
-- Updated dependency versions and tooling
+### Main Export (`@nextnode/validation`)
+
+#### Core Engine
+
+```typescript
+// ArkType re-exports
+export { type } // Type constructor function
+export type { Type } // Generic type
+
+// Validation engine
+export { v } // Default engine instance
+export { createValidationEngine } // Factory function
+export { ValidationError } // Error class for parse()
+export { isWrappedSchema } // Type guard
+
+// Types
+export type { Schema } // Schema wrapper interface
+export type { SchemaMetadata }
+export type { ValidationEngineConfig }
+export type { ValidationIssue }
+export type { ValidationResult }
+export type { Infer } // Type inference helper
+```
+
+#### Error Handling
+
+```typescript
+export { ErrorCodes } // 38 error code constants
+export { DefaultErrorFormatter } // Default formatter class
+export type { ErrorCode } // Union of all codes
+export type { ErrorFormatter }
+```
+
+#### Pre-built Schemas (68 total)
+
+```typescript
+// Common (16)
+export { schemas } // Aggregated object
+export { email, url, uuid, date, json, base64, slug, semver }
+export { boolean, integer, positive, nonNegative, percentage }
+export { nonEmptyString, alphanumeric }
+export { stringLength } // Factory: (min, max) => Schema
+export { numberRange } // Factory: (min, max) => Schema
+
+// Auth (11)
+export { authSchemas } // Aggregated object
+export { authEmail, username }
+export { passwordBasic, strongPassword }
+export { createPasswordSchema } // Factory with PasswordRequirements
+export { jwtToken, apiKey, apiKeyWithPrefix }
+export { loginSchema, registerSchema }
+export { passwordResetSchema, passwordResetRequestSchema }
+export type { PasswordRequirements }
+
+// Financial (9)
+export { financialSchemas } // Aggregated object
+export { creditCard, iban, bic, currencyCode }
+export { price, amount }
+export { taxIdUS, taxIdFR }
+
+// Identity (18)
+export { identitySchemas } // Aggregated object
+export { phoneE164, phoneFlexible }
+export { ssnUS, ssnFR, nationalId, passportNumber }
+export { zipCodeUS, postalCodeFR, postalCodeUK, postalCodeCA }
+export { age, birthDate, gender, title }
+export { personName, singleName }
+
+// Network (12)
+export { networkSchemas } // Aggregated object
+export { ip, ipv4, ipv6 }
+export { hostname, domain, port }
+export { macAddress, urlSlug }
+export { httpMethod, httpStatusCode }
+```
+
+### React Hook Form (`@nextnode/validation/react-hook-form`)
+
+```typescript
+export { arktypeResolver } // Resolver function
+export type { ArktypeResolver }
+export type { ArktypeResolverOptions }
+export type { FieldError }
+export type { FieldErrors }
+export type { ResolverResult }
+```
+
+### Server Middleware (`@nextnode/validation/middleware`)
+
+```typescript
+// Core
+export { validateData } // Core validation function
+export { createErrorResponse } // Error response builder
+
+// Hono
+export { honoValidator } // Hono middleware
+export { getValidated } // Helper to get validated data
+export type { HonoValidatorOptions }
+
+// Express
+export { expressValidator } // Express middleware
+export type { ExpressValidatorOptions }
+
+// Fastify
+export { fastifyValidator } // Fastify preHandler
+export type { FastifyValidatorOptions }
+
+// Types
+export type { ValidationTarget } // 'body' | 'query' | 'params' | 'headers'
+export type { ValidationErrorResponse }
+```
+
+## Error Codes Reference (38 codes)
+
+Error codes in `src/lib/errors/codes.ts` for i18n:
+
+| Category  | Codes                                                                                                                                                                                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type      | `invalid_type`, `required`, `unexpected_key`                                                                                                                                                     |
+| String    | `string_min`, `string_max`, `string_length`, `string_pattern`, `invalid_email`, `invalid_url`, `invalid_uuid`, `invalid_date`, `invalid_json`, `invalid_base64`, `invalid_hex`, `invalid_format` |
+| Number    | `number_min`, `number_max`, `number_range`, `not_integer`, `not_positive`, `not_negative`, `invalid_divisor`                                                                                     |
+| Array     | `array_min`, `array_max`, `array_length`, `array_empty`                                                                                                                                          |
+| Object    | `object_empty`                                                                                                                                                                                   |
+| Auth      | `invalid_password`, `password_too_short`, `password_no_uppercase`, `password_no_lowercase`, `password_no_number`, `password_no_special`, `passwords_dont_match`                                  |
+| Financial | `invalid_credit_card`, `invalid_iban`, `invalid_bic`, `invalid_currency`, `invalid_price`                                                                                                        |
+| Network   | `invalid_ip`, `invalid_ipv4`, `invalid_ipv6`, `invalid_hostname`, `invalid_port`, `invalid_mac`                                                                                                  |
+| Identity  | `invalid_phone`, `invalid_ssn`, `invalid_postal_code`                                                                                                                                            |
+| Custom    | `custom`, `predicate`, `narrow`                                                                                                                                                                  |
+
+## Package Exports
+
+```json
+{
+	".": "./dist/index.js",
+	"./react-hook-form": "./dist/integrations/react-hook-form/index.js",
+	"./middleware": "./dist/integrations/middleware/index.js",
+	"./middleware/hono": "./dist/integrations/middleware/hono.js",
+	"./middleware/express": "./dist/integrations/middleware/express.js",
+	"./middleware/fastify": "./dist/integrations/middleware/fastify.js",
+	"./schemas": "./dist/lib/schemas/index.js"
+}
+```
+
+## Dependencies
+
+**Production:**
+
+- `arktype` ^2.1.28 - Core validation library
+- `@nextnode/logger` ^0.3.0 - Logging
+
+**Peer (optional):**
+
+- `react-hook-form` ^7.0.0 - For resolver
+- `hono` ^4.0.0 - For Hono middleware
+- `express` ^4.0.0 || ^5.0.0 - For Express middleware
+- `fastify` ^4.0.0 || ^5.0.0 - For Fastify middleware
+
+## Testing
+
+Tests are in `src/__tests__/`:
+
+- `core.spec.ts` - Validation engine tests
+- `schemas.spec.ts` - Pre-built schema tests
+- `resolver.spec.ts` - React Hook Form resolver tests
+- `middleware.spec.ts` - Server middleware tests
+- `logger.spec.ts` - Logger tests
+- `utils.spec.ts` - Utility tests
+
+All tests use Vitest with proper mocking for logger.
+
+## Architecture Notes
+
+1. **ArkType string syntax**: Uses TypeScript-like strings (`'string.email'`, `'number >= 0'`)
+2. **Composition over inheritance**: Schemas compose via ArkType's type system
+3. **DI pattern**: ErrorFormatter interface for customization
+4. **Tree-shakeable**: Separate export paths for integrations
+5. **Framework-agnostic middleware**: Core logic in `middleware/core.ts`, adapters in separate files
+6. **Factory pattern**: `createValidationEngine`, `createPasswordSchema`, `createApiKey` for configurability

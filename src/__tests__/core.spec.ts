@@ -1,106 +1,232 @@
 /**
- * Core library functionality tests
+ * Core validation engine tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { type } from 'arktype'
+import { describe, expect, it } from 'vitest'
 
-import { createClient, validateConfig, processData } from '../lib/core.js'
+import {
+	createValidationEngine,
+	DefaultErrorFormatter,
+	ErrorCodes,
+	v,
+} from '../lib/index.js'
 
-// Mock the logger
-vi.mock('../utils/logger.js', () => ({
-  coreLogger: {
-    info: vi.fn()
-  },
-  logError: vi.fn()
-}))
+describe('Validation Engine', () => {
+	describe('createValidationEngine', () => {
+		it('should create a validation engine with default config', () => {
+			const engine = createValidationEngine()
 
-describe('Core Library', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+			expect(engine).toBeDefined()
+			expect(engine.schema).toBeDefined()
+			expect(engine.define).toBeDefined()
+			expect(engine.object).toBeDefined()
+		})
 
-  describe('createClient', () => {
-    it('should create client with default options', () => {
-      const client = createClient()
-      
-      expect(client).toBeDefined()
-      expect(client.apiKey).toBeUndefined()
-      expect(client.baseUrl).toBeUndefined()
-    })
-    
-    it('should create client with provided options', () => {
-      const options = { 
-        apiKey: 'test-key', 
-        baseUrl: 'https://api.example.com' 
-      }
-      const client = createClient(options)
-      
-      expect(client).toBeDefined()
-      expect(client.apiKey).toBe('test-key')
-      expect(client.baseUrl).toBe('https://api.example.com')
-    })
+		it('should create engine with custom error formatter', () => {
+			const customFormatter = new DefaultErrorFormatter()
+			const engine = createValidationEngine({
+				errorFormatter: customFormatter,
+			})
 
-    it('should create client with partial options', () => {
-      const client = createClient({ apiKey: 'test-key' })
-      
-      expect(client).toBeDefined()
-      expect(client.apiKey).toBe('test-key')
-      expect(client.baseUrl).toBeUndefined()
-    })
-  })
-  
-  describe('validateConfig', () => {
-    it('should validate valid config object', () => {
-      const config = { apiKey: 'test', baseUrl: 'https://api.example.com' }
-      
-      expect(validateConfig(config)).toBe(true)
-    })
-    
-    it('should reject invalid config', () => {
-      expect(validateConfig(null)).toBe(false)
-      expect(validateConfig('string')).toBe(false)
-      expect(validateConfig(123)).toBe(false)
-      expect(validateConfig([])).toBe(false)
-    })
-  })
+			expect(engine).toBeDefined()
+		})
+	})
 
-  describe('processData', () => {
-    it('should process empty array', async () => {
-      const result = await processData([])
-      
-      expect(result).toEqual([])
-    })
+	describe('v (default engine)', () => {
+		describe('v.schema()', () => {
+			it('should wrap ArkType schema with validation methods', () => {
+				const emailType = type('string.email')
+				const schema = v.schema(emailType)
 
-    it('should process data array and add metadata', async () => {
-      const inputData = [
-        { id: 1, name: 'test1' },
-        { id: 2, name: 'test2' }
-      ]
-      
-      const result = await processData(inputData)
-      
-      expect(result).toHaveLength(2)
-      expect(result[0]).toEqual({
-        id: 1,
-        name: 'test1',
-        processed: true,
-        timestamp: expect.any(Number)
-      })
-      expect(result[1]).toEqual({
-        id: 2,
-        name: 'test2',
-        processed: true,
-        timestamp: expect.any(Number)
-      })
-    })
+				expect(schema.safeParse).toBeDefined()
+				expect(schema.parse).toBeDefined()
+				expect(schema.validate).toBeDefined()
+			})
 
-    it('should handle data processing errors', async () => {
-      // This would need to be a more specific test case based on your actual error scenarios
-      // For now, we'll test the basic structure
-      const inputData = [{ id: 1 }]
-      
-      const result = await processData(inputData)
-      expect(result[0]).toHaveProperty('processed', true)
-    })
-  })
+			it('should validate valid data successfully', () => {
+				const emailType = type('string.email')
+				const schema = v.schema(emailType)
+
+				const result = schema.safeParse('test@example.com')
+
+				expect(result.success).toBe(true)
+				if (result.success) {
+					expect(result.data).toBe('test@example.com')
+				}
+			})
+
+			it('should return issues for invalid data', () => {
+				const emailType = type('string.email')
+				const schema = v.schema(emailType)
+
+				const result = schema.safeParse('invalid-email')
+
+				expect(result.success).toBe(false)
+				if (!result.success) {
+					expect(result.issues.length).toBeGreaterThan(0)
+					expect(result.issues[0]?.code).toBe(
+						ErrorCodes.INVALID_EMAIL,
+					)
+				}
+			})
+		})
+
+		describe('v.define()', () => {
+			it('should create schema from string definition', () => {
+				const schema = v.define<string>('string >= 3')
+
+				const result = schema.safeParse('hello')
+				expect(result.success).toBe(true)
+			})
+
+			it('should reject invalid values', () => {
+				const schema = v.define<string>('string >= 3')
+
+				const result = schema.safeParse('ab')
+				expect(result.success).toBe(false)
+			})
+
+			it('should handle numeric constraints', () => {
+				const schema = v.define<number>('number > 0')
+
+				expect(schema.safeParse(10).success).toBe(true)
+				expect(schema.safeParse(0).success).toBe(false)
+				expect(schema.safeParse(-5).success).toBe(false)
+			})
+		})
+
+		describe('v.object()', () => {
+			it('should create object schema', () => {
+				const schema = v.object<{ name: string; age: number }>({
+					name: 'string >= 1',
+					age: 'number >= 0',
+				})
+
+				const result = schema.safeParse({ name: 'John', age: 25 })
+				expect(result.success).toBe(true)
+			})
+
+			it('should validate nested object properties', () => {
+				const schema = v.object<{ user: { email: string } }>({
+					user: {
+						email: 'string.email',
+					},
+				})
+
+				const validResult = schema.safeParse({
+					user: { email: 'test@example.com' },
+				})
+				expect(validResult.success).toBe(true)
+
+				const invalidResult = schema.safeParse({
+					user: { email: 'invalid' },
+				})
+				expect(invalidResult.success).toBe(false)
+			})
+
+			it('should handle optional properties', () => {
+				const schema = v.object<{ name: string; nickname?: string }>({
+					name: 'string',
+					'nickname?': 'string',
+				})
+
+				const withoutOptional = schema.safeParse({ name: 'John' })
+				expect(withoutOptional.success).toBe(true)
+
+				const withOptional = schema.safeParse({
+					name: 'John',
+					nickname: 'Johnny',
+				})
+				expect(withOptional.success).toBe(true)
+			})
+		})
+
+		describe('parse()', () => {
+			it('should return data for valid input', () => {
+				const schema = v.define<string>('string')
+				const data = schema.parse('hello')
+
+				expect(data).toBe('hello')
+			})
+
+			it('should throw ValidationError for invalid input', () => {
+				const schema = v.define<number>('number')
+
+				expect(() => schema.parse('not a number')).toThrow()
+			})
+		})
+
+		describe('validate()', () => {
+			it('should be alias for safeParse', () => {
+				const schema = v.define<string>('string.email')
+
+				const result = schema.validate('test@example.com')
+				expect(result.success).toBe(true)
+
+				const invalidResult = schema.validate('invalid')
+				expect(invalidResult.success).toBe(false)
+			})
+		})
+	})
+
+	describe('DefaultErrorFormatter', () => {
+		it('should format errors with path and code', () => {
+			const userSchema = type({
+				email: 'string.email',
+				age: 'number >= 0',
+			})
+
+			const result = userSchema({ email: 'invalid', age: -5 })
+
+			if (result instanceof type.errors) {
+				const formatter = new DefaultErrorFormatter()
+				const issues = formatter.format(result)
+
+				expect(issues.length).toBeGreaterThan(0)
+				for (const issue of issues) {
+					expect(issue.path).toBeDefined()
+					expect(issue.code).toBeDefined()
+				}
+			}
+		})
+
+		it('should extract params for constraint errors', () => {
+			const schema = type('string >= 5')
+			const result = schema('ab')
+
+			if (result instanceof type.errors) {
+				const formatter = new DefaultErrorFormatter()
+				const issues = formatter.format(result)
+
+				expect(issues[0]?.code).toBe(ErrorCodes.STRING_MIN)
+				// params.min should be extracted from the constraint
+			}
+		})
+
+		it('should map email validation to INVALID_EMAIL code', () => {
+			const schema = type('string.email')
+			const result = schema('invalid')
+
+			if (result instanceof type.errors) {
+				const formatter = new DefaultErrorFormatter()
+				const issues = formatter.format(result)
+
+				expect(issues[0]?.code).toBe(ErrorCodes.INVALID_EMAIL)
+			}
+		})
+	})
+
+	describe('Error Codes', () => {
+		it('should have all standard error codes defined', () => {
+			expect(ErrorCodes.INVALID_TYPE).toBe('invalid_type')
+			expect(ErrorCodes.INVALID_FORMAT).toBe('invalid_format')
+			expect(ErrorCodes.REQUIRED).toBe('required')
+			expect(ErrorCodes.INVALID_EMAIL).toBe('invalid_email')
+			expect(ErrorCodes.INVALID_URL).toBe('invalid_url')
+			expect(ErrorCodes.STRING_MIN).toBe('string_min')
+			expect(ErrorCodes.NUMBER_MIN).toBe('number_min')
+			expect(ErrorCodes.CUSTOM).toBe('custom')
+		})
+	})
 })

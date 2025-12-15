@@ -1,13 +1,29 @@
 /**
  * @nextnode/validation
- * A TypeScript validation library powered by ArkType for comprehensive input validation on both frontend and backend in NextNode projects
+ * TypeScript validation library powered by ArkType
+ *
+ * @example
+ * ```typescript
+ * import { type, v, schemas } from '@nextnode/validation'
+ *
+ * // Direct ArkType usage
+ * const userSchema = type({
+ *   email: 'string.email',
+ *   age: 'number >= 0'
+ * })
+ *
+ * // Using validation engine
+ * const schema = v.object({ email: schemas.email })
+ * const result = schema.safeParse(data)
+ *
+ * // Using pre-built schemas
+ * const { email, url, uuid } = schemas
+ * ```
  */
 
-// Main library exports
-export * from './lib/core.js'
+export type { Type } from 'arktype'
+// Re-export ArkType's type function for direct use
+export { type } from 'arktype'
 
-// Type exports
-export type * from './types/index.js'
-
-// Utility exports
-export * from './utils/index.js'
+// Core validation engine (includes types, schemas, and errors)
+export * from './lib/index.js'
