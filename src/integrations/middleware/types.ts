@@ -50,10 +50,3 @@ export interface ErrorHandlerContext {
 	target: ValidationTarget
 	originalData: unknown
 }
-
-/**
- * Framework adapter interface (for DI)
- */
-export interface FrameworkAdapter<TMiddleware> {
-	createMiddleware<T>(config: MiddlewareConfig<T>): TMiddleware
-}

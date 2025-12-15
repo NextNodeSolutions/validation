@@ -119,11 +119,7 @@ export const honoValidator =
 
 		// Handle malformed JSON body
 		if (data === INVALID_JSON) {
-			return handleValidationError(
-				[{ path: [], code: 'invalid_json' }],
-				c,
-				options,
-			)
+			return handleValidationError([{ code: 'invalid_json' }], c, options)
 		}
 
 		const result = validateData(schema, data)

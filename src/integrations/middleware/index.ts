@@ -18,7 +18,6 @@ export { getValidated, honoValidator } from './hono.js'
 export type {
 	ErrorHandler,
 	ErrorHandlerContext,
-	FrameworkAdapter,
 	MiddlewareConfig,
 	ValidationErrorResponse,
 	ValidationTarget,
