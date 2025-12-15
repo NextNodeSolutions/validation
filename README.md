@@ -316,6 +316,187 @@ const passwordSchema = type('string >= 8').narrow((pwd, ctx) => {
 
 **Identity (`identitySchemas`)**: `phoneE164`, `phoneFlexible`, `zipCodeUS`, `postalCodeFR`, `postalCodeUK`, `postalCodeCA`, `ssnUS`, `ssnFR`, `age`, `birthDate`, `personName`, `singleName`, `gender`, `title`, `nationalId`, `passportNumber`
 
+## Complete Exports Reference
+
+### Core Engine
+
+| Export                   | Type     | Description                        |
+| ------------------------ | -------- | ---------------------------------- |
+| `type`                   | Function | ArkType type constructor           |
+| `Type`                   | Type     | ArkType generic type               |
+| `v`                      | Object   | Default validation engine instance |
+| `createValidationEngine` | Function | Factory for custom engine          |
+| `ValidationError`        | Class    | Error thrown by `parse()`          |
+| `isWrappedSchema`        | Function | Type guard for Schema objects      |
+| `Infer`                  | Type     | Infer TypeScript type from schema  |
+
+### Types
+
+| Export                   | Description                                          |
+| ------------------------ | ---------------------------------------------------- |
+| `Schema<T>`              | Schema wrapper with `safeParse()`, `parse()` methods |
+| `SchemaFactory`          | Factory function type                                |
+| `SchemaMetadata`         | Optional metadata for schemas                        |
+| `ValidationEngineConfig` | Engine configuration options                         |
+| `ValidationIssue`        | Single validation error                              |
+| `ValidationResult<T>`    | Discriminated union: success or issues               |
+| `ErrorFormatter`         | Interface for custom error formatting                |
+| `ErrorFormatterConfig`   | Formatter configuration                              |
+| `ErrorCode`              | Union type of all error codes                        |
+
+### Error Handling
+
+| Export                  | Type     | Description                   |
+| ----------------------- | -------- | ----------------------------- |
+| `ErrorCodes`            | Object   | Constants for all error codes |
+| `DefaultErrorFormatter` | Class    | Default formatter             |
+| `createErrorFormatter`  | Function | Factory for custom formatter  |
+
+### Factory Functions
+
+| Export                 | Signature                                        | Description                   |
+| ---------------------- | ------------------------------------------------ | ----------------------------- |
+| `createPasswordSchema` | `(requirements: PasswordRequirements) => Schema` | Custom password validator     |
+| `createApiKey`         | `(prefix: string) => Schema`                     | API key validator with prefix |
+| `apiKeyWithPrefix`     | `(prefix: string) => Schema`                     | Alias for `createApiKey`      |
+| `stringLength`         | `(min: number, max: number) => Schema`           | String length range validator |
+| `numberRange`          | `(min: number, max: number) => Schema`           | Number range validator        |
+
+### React Hook Form (`@nextnode/validation/react-hook-form`)
+
+| Export                   | Type     | Description                  |
+| ------------------------ | -------- | ---------------------------- |
+| `arktypeResolver`        | Function | Resolver for React Hook Form |
+| `ArktypeResolver`        | Type     | Resolver function type       |
+| `ArktypeResolverOptions` | Type     | Resolver options             |
+| `FieldError`             | Type     | Single field error           |
+| `FieldErrors`            | Type     | Map of field errors          |
+| `ResolverResult`         | Type     | Resolver return type         |
+
+### Server Middleware (`@nextnode/validation/middleware`)
+
+| Export                    | Type     | Description                                  |
+| ------------------------- | -------- | -------------------------------------------- |
+| `validateData`            | Function | Core validation function                     |
+| `createErrorResponse`     | Function | Error response builder                       |
+| `honoValidator`           | Function | Hono middleware                              |
+| `getValidated`            | Function | Hono helper to get data                      |
+| `expressValidator`        | Function | Express middleware                           |
+| `fastifyValidator`        | Function | Fastify preHandler                           |
+| `ValidationTarget`        | Type     | `'body' \| 'query' \| 'params' \| 'headers'` |
+| `MiddlewareConfig`        | Type     | Common middleware config                     |
+| `ErrorHandler`            | Type     | Custom error handler function                |
+| `ErrorHandlerContext`     | Type     | Context passed to error handler              |
+| `ValidationErrorResponse` | Type     | Standard error response format               |
+| `HonoValidatorOptions`    | Type     | Hono-specific options                        |
+| `ExpressValidatorOptions` | Type     | Express-specific options                     |
+| `FastifyValidatorOptions` | Type     | Fastify-specific options                     |
+
+## Error Codes Reference
+
+All error codes are available via `ErrorCodes` constant for i18n mapping.
+
+### Type Errors
+
+| Code             | Value            | Description            |
+| ---------------- | ---------------- | ---------------------- |
+| `INVALID_TYPE`   | `invalid_type`   | Wrong type             |
+| `REQUIRED`       | `required`       | Missing required field |
+| `UNEXPECTED_KEY` | `unexpected_key` | Unknown property       |
+
+### String Errors
+
+| Code             | Value            | Description             |
+| ---------------- | ---------------- | ----------------------- |
+| `STRING_MIN`     | `string_min`     | Below minimum length    |
+| `STRING_MAX`     | `string_max`     | Above maximum length    |
+| `STRING_LENGTH`  | `string_length`  | Exact length mismatch   |
+| `STRING_PATTERN` | `string_pattern` | Regex pattern failure   |
+| `INVALID_EMAIL`  | `invalid_email`  | Invalid email format    |
+| `INVALID_URL`    | `invalid_url`    | Invalid URL format      |
+| `INVALID_UUID`   | `invalid_uuid`   | Invalid UUID format     |
+| `INVALID_DATE`   | `invalid_date`   | Invalid date format     |
+| `INVALID_JSON`   | `invalid_json`   | Invalid JSON            |
+| `INVALID_BASE64` | `invalid_base64` | Invalid base64 encoding |
+| `INVALID_HEX`    | `invalid_hex`    | Invalid hex string      |
+| `INVALID_FORMAT` | `invalid_format` | Generic format error    |
+
+### Number Errors
+
+| Code              | Value             | Description               |
+| ----------------- | ----------------- | ------------------------- |
+| `NUMBER_MIN`      | `number_min`      | Below minimum value       |
+| `NUMBER_MAX`      | `number_max`      | Above maximum value       |
+| `NUMBER_RANGE`    | `number_range`    | Outside allowed range     |
+| `NOT_INTEGER`     | `not_integer`     | Not an integer            |
+| `NOT_POSITIVE`    | `not_positive`    | Not a positive number     |
+| `NOT_NEGATIVE`    | `not_negative`    | Not a negative number     |
+| `INVALID_DIVISOR` | `invalid_divisor` | Not divisible by expected |
+
+### Array Errors
+
+| Code           | Value          | Description             |
+| -------------- | -------------- | ----------------------- |
+| `ARRAY_MIN`    | `array_min`    | Below minimum items     |
+| `ARRAY_MAX`    | `array_max`    | Above maximum items     |
+| `ARRAY_LENGTH` | `array_length` | Exact length mismatch   |
+| `ARRAY_EMPTY`  | `array_empty`  | Array must not be empty |
+
+### Object Errors
+
+| Code           | Value          | Description              |
+| -------------- | -------------- | ------------------------ |
+| `OBJECT_EMPTY` | `object_empty` | Object must not be empty |
+
+### Auth Errors
+
+| Code                    | Value                   | Description               |
+| ----------------------- | ----------------------- | ------------------------- |
+| `INVALID_PASSWORD`      | `invalid_password`      | Generic password error    |
+| `PASSWORD_TOO_SHORT`    | `password_too_short`    | Below minimum length      |
+| `PASSWORD_NO_UPPERCASE` | `password_no_uppercase` | Missing uppercase letter  |
+| `PASSWORD_NO_LOWERCASE` | `password_no_lowercase` | Missing lowercase letter  |
+| `PASSWORD_NO_NUMBER`    | `password_no_number`    | Missing number            |
+| `PASSWORD_NO_SPECIAL`   | `password_no_special`   | Missing special character |
+| `PASSWORDS_DONT_MATCH`  | `passwords_dont_match`  | Passwords don't match     |
+
+### Financial Errors
+
+| Code                  | Value                 | Description                |
+| --------------------- | --------------------- | -------------------------- |
+| `INVALID_CREDIT_CARD` | `invalid_credit_card` | Invalid credit card number |
+| `INVALID_IBAN`        | `invalid_iban`        | Invalid IBAN               |
+| `INVALID_BIC`         | `invalid_bic`         | Invalid BIC/SWIFT code     |
+| `INVALID_CURRENCY`    | `invalid_currency`    | Invalid currency code      |
+| `INVALID_PRICE`       | `invalid_price`       | Invalid price format       |
+
+### Network Errors
+
+| Code               | Value              | Description          |
+| ------------------ | ------------------ | -------------------- |
+| `INVALID_IP`       | `invalid_ip`       | Invalid IP address   |
+| `INVALID_IPV4`     | `invalid_ipv4`     | Invalid IPv4 address |
+| `INVALID_IPV6`     | `invalid_ipv6`     | Invalid IPv6 address |
+| `INVALID_HOSTNAME` | `invalid_hostname` | Invalid hostname     |
+| `INVALID_PORT`     | `invalid_port`     | Invalid port number  |
+| `INVALID_MAC`      | `invalid_mac`      | Invalid MAC address  |
+
+### Identity Errors
+
+| Code                  | Value                 | Description             |
+| --------------------- | --------------------- | ----------------------- |
+| `INVALID_PHONE`       | `invalid_phone`       | Invalid phone number    |
+| `INVALID_SSN`         | `invalid_ssn`         | Invalid SSN             |
+| `INVALID_POSTAL_CODE` | `invalid_postal_code` | Invalid postal/zip code |
+
+### Custom Errors
+
+| Code        | Value       | Description                 |
+| ----------- | ----------- | --------------------------- |
+| `CUSTOM`    | `custom`    | Custom validation error     |
+| `PREDICATE` | `predicate` | Predicate validation failed |
+| `NARROW`    | `narrow`    | Narrow refinement failed    |
+
 ## Development
 
 ```bash

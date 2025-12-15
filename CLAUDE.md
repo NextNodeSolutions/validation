@@ -230,27 +230,143 @@ fastify.post(
 )
 ```
 
-## Error Codes
+## Complete Exports Reference
 
-Error codes are defined in `src/lib/errors/codes.ts` for i18n support:
+### Main Export (`@nextnode/validation`)
 
-**Type errors:** `invalid_type`, `required`, `unexpected_key`
+#### Core Engine
 
-**String errors:** `string_min`, `string_max`, `string_length`, `string_pattern`, `invalid_email`, `invalid_url`, `invalid_uuid`, `invalid_date`, `invalid_json`, `invalid_base64`, `invalid_hex`, `invalid_format`
+```typescript
+// ArkType re-exports
+export { type } // Type constructor function
+export type { Type } // Generic type
 
-**Number errors:** `number_min`, `number_max`, `number_range`, `not_integer`, `not_positive`, `not_negative`, `invalid_divisor`
+// Validation engine
+export { v } // Default engine instance
+export { createValidationEngine } // Factory function
+export { ValidationError } // Error class for parse()
+export { isWrappedSchema } // Type guard
 
-**Array errors:** `array_min`, `array_max`, `array_length`, `array_empty`
+// Types
+export type { Schema } // Schema wrapper interface
+export type { SchemaFactory }
+export type { SchemaMetadata }
+export type { ValidationEngineConfig }
+export type { ValidationIssue }
+export type { ValidationResult }
+export type { Infer } // Type inference helper
+```
 
-**Auth errors:** `invalid_password`, `password_too_short`, `password_no_uppercase`, `password_no_lowercase`, `password_no_number`, `password_no_special`, `passwords_dont_match`
+#### Error Handling
 
-**Financial errors:** `invalid_credit_card`, `invalid_iban`, `invalid_bic`, `invalid_currency`, `invalid_price`
+```typescript
+export { ErrorCodes } // 38 error code constants
+export { DefaultErrorFormatter } // Default formatter class
+export { createErrorFormatter } // Factory function
+export type { ErrorCode } // Union of all codes
+export type { ErrorFormatter }
+export type { ErrorFormatterConfig }
+```
 
-**Network errors:** `invalid_ip`, `invalid_ipv4`, `invalid_ipv6`, `invalid_hostname`, `invalid_port`, `invalid_mac`
+#### Pre-built Schemas (68 total)
 
-**Identity errors:** `invalid_phone`, `invalid_ssn`, `invalid_postal_code`
+```typescript
+// Common (16)
+export { schemas } // Aggregated object
+export { email, url, uuid, date, json, base64, slug, semver }
+export { boolean, integer, positive, nonNegative, percentage }
+export { nonEmptyString, alphanumeric }
+export { stringLength } // Factory: (min, max) => Schema
+export { numberRange } // Factory: (min, max) => Schema
 
-**Custom:** `custom`, `predicate`, `narrow`
+// Auth (11)
+export { authSchemas } // Aggregated object
+export { authEmail, username }
+export { passwordBasic, strongPassword }
+export { createPasswordSchema } // Factory with PasswordRequirements
+export { jwtToken, apiKey, apiKeyWithPrefix }
+export { loginSchema, registerSchema }
+export { passwordResetSchema, passwordResetRequestSchema }
+export type { PasswordRequirements }
+
+// Financial (9)
+export { financialSchemas } // Aggregated object
+export { creditCard, iban, bic, currencyCode }
+export { price, amount }
+export { taxIdUS, taxIdFR }
+
+// Identity (18)
+export { identitySchemas } // Aggregated object
+export { phoneE164, phoneFlexible }
+export { ssnUS, ssnFR, nationalId, passportNumber }
+export { zipCodeUS, postalCodeFR, postalCodeUK, postalCodeCA }
+export { age, birthDate, gender, title }
+export { personName, singleName }
+
+// Network (12)
+export { networkSchemas } // Aggregated object
+export { ip, ipv4, ipv6 }
+export { hostname, domain, port }
+export { macAddress, urlSlug }
+export { httpMethod, httpStatusCode }
+```
+
+### React Hook Form (`@nextnode/validation/react-hook-form`)
+
+```typescript
+export { arktypeResolver } // Resolver function
+export type { ArktypeResolver }
+export type { ArktypeResolverOptions }
+export type { FieldError }
+export type { FieldErrors }
+export type { ResolverResult }
+```
+
+### Server Middleware (`@nextnode/validation/middleware`)
+
+```typescript
+// Core
+export { validateData } // Core validation function
+export { createErrorResponse } // Error response builder
+
+// Hono
+export { honoValidator } // Hono middleware
+export { getValidated } // Helper to get validated data
+export type { HonoValidatorOptions }
+
+// Express
+export { expressValidator } // Express middleware
+export type { ExpressValidatorOptions }
+
+// Fastify
+export { fastifyValidator } // Fastify preHandler
+export type { FastifyValidatorOptions }
+
+// Types
+export type { ValidationTarget } // 'body' | 'query' | 'params' | 'headers'
+export type { MiddlewareConfig }
+export type { ErrorHandler }
+export type { ErrorHandlerContext }
+export type { ValidationErrorResponse }
+export type { FrameworkAdapter }
+```
+
+## Error Codes Reference (38 codes)
+
+Error codes in `src/lib/errors/codes.ts` for i18n:
+
+| Category  | Codes                                                                                                                                                                                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type      | `invalid_type`, `required`, `unexpected_key`                                                                                                                                                     |
+| String    | `string_min`, `string_max`, `string_length`, `string_pattern`, `invalid_email`, `invalid_url`, `invalid_uuid`, `invalid_date`, `invalid_json`, `invalid_base64`, `invalid_hex`, `invalid_format` |
+| Number    | `number_min`, `number_max`, `number_range`, `not_integer`, `not_positive`, `not_negative`, `invalid_divisor`                                                                                     |
+| Array     | `array_min`, `array_max`, `array_length`, `array_empty`                                                                                                                                          |
+| Object    | `object_empty`                                                                                                                                                                                   |
+| Auth      | `invalid_password`, `password_too_short`, `password_no_uppercase`, `password_no_lowercase`, `password_no_number`, `password_no_special`, `passwords_dont_match`                                  |
+| Financial | `invalid_credit_card`, `invalid_iban`, `invalid_bic`, `invalid_currency`, `invalid_price`                                                                                                        |
+| Network   | `invalid_ip`, `invalid_ipv4`, `invalid_ipv6`, `invalid_hostname`, `invalid_port`, `invalid_mac`                                                                                                  |
+| Identity  | `invalid_phone`, `invalid_ssn`, `invalid_postal_code`                                                                                                                                            |
+| Custom    | `custom`, `predicate`, `narrow`                                                                                                                                                                  |
 
 ## Package Exports
 
