@@ -36,8 +36,6 @@ export interface ValidationEngineConfig {
 	errorFormatter?: ErrorFormatter
 	/** Enable detailed logging */
 	debug?: boolean
-	/** Strip unknown keys from objects */
-	stripUnknown?: boolean
 }
 
 /**
@@ -77,11 +75,3 @@ export interface Schema<T = unknown> {
 	/** Safe parse - alias for validate */
 	safeParse(data: unknown): ValidationResult<T>
 }
-
-/**
- * Factory function type for creating schemas
- */
-export type SchemaFactory = <T>(
-	arkType: Type<T>,
-	meta?: SchemaMetadata,
-) => Schema<T>

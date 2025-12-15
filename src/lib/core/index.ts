@@ -8,7 +8,6 @@ export { isWrappedSchema } from './guards.js'
 export type {
 	ErrorFormatter,
 	Schema,
-	SchemaFactory,
 	SchemaMetadata,
 	ValidationEngineConfig,
 	ValidationIssue,
