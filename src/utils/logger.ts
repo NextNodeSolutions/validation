@@ -5,7 +5,7 @@
 
 import { createLogger } from '@nextnode/logger'
 
-export const logger = createLogger()
+const logger = createLogger()
 
 export const coreLogger = createLogger({
 	prefix: 'CORE',

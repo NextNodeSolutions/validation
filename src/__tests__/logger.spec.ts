@@ -4,18 +4,19 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { coreLogger, logError, logger } from '../utils/logger.js'
+// Hoist the mock function so it's available during mock setup
+const mockError = vi.hoisted(() => vi.fn())
 
 // Mock @nextnode/logger
 vi.mock('@nextnode/logger', () => ({
-	createLogger: vi.fn(
-		(): { info: () => void; warn: () => void; error: () => void } => ({
-			info: vi.fn(),
-			warn: vi.fn(),
-			error: vi.fn(),
-		}),
-	),
+	createLogger: vi.fn(() => ({
+		info: vi.fn(),
+		warn: vi.fn(),
+		error: mockError,
+	})),
 }))
+
+import { coreLogger, logError } from '../utils/logger.js'
 
 describe('Logger Utilities', () => {
 	beforeEach(() => {
@@ -27,15 +28,14 @@ describe('Logger Utilities', () => {
 	})
 
 	describe('Logger instances', () => {
-		it('should create main logger', () => {
-			expect(logger).toBeDefined()
-			expect(logger.info).toBeDefined()
-			expect(logger.warn).toBeDefined()
-			expect(logger.error).toBeDefined()
-		})
-
 		it('should create specialized loggers', () => {
 			expect(coreLogger).toBeDefined()
+		})
+
+		it('should have logger methods', () => {
+			expect(coreLogger.info).toBeDefined()
+			expect(coreLogger.warn).toBeDefined()
+			expect(coreLogger.error).toBeDefined()
 		})
 	})
 
@@ -46,7 +46,7 @@ describe('Logger Utilities', () => {
 
 			logError(error, context)
 
-			expect(logger.error).toHaveBeenCalledWith('Operation failed', {
+			expect(mockError).toHaveBeenCalledWith('Operation failed', {
 				details: {
 					error: 'Test error',
 					stack: error.stack,
@@ -60,7 +60,7 @@ describe('Logger Utilities', () => {
 
 			logError(errorMessage)
 
-			expect(logger.error).toHaveBeenCalledWith('Operation failed', {
+			expect(mockError).toHaveBeenCalledWith('Operation failed', {
 				details: {
 					error: errorMessage,
 				},
@@ -75,7 +75,7 @@ describe('Logger Utilities', () => {
 
 			logError(unknownError)
 
-			expect(logger.error).toHaveBeenCalledWith('Operation failed', {
+			expect(mockError).toHaveBeenCalledWith('Operation failed', {
 				details: {
 					error: '[object Object]',
 				},
@@ -87,7 +87,7 @@ describe('Logger Utilities', () => {
 
 			logError(error)
 
-			expect(logger.error).toHaveBeenCalledWith('Operation failed', {
+			expect(mockError).toHaveBeenCalledWith('Operation failed', {
 				details: {
 					error: 'No context error',
 					stack: error.stack,
