@@ -210,6 +210,21 @@ const { register, handleSubmit } = useForm({
 })
 ```
 
+### TanStack Form (Native Support)
+
+TanStack Form supports Standard Schema - use `type()` directly (no adapter needed):
+
+```typescript
+import { useForm } from '@tanstack/react-form'
+import { type } from '@nextnode/validation'
+
+const schema = type({ email: 'string.email' })
+
+const form = useForm({
+	validators: { onChange: schema },
+})
+```
+
 ### Server Middleware
 
 ```typescript

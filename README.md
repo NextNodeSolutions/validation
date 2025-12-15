@@ -141,6 +141,51 @@ function LoginForm() {
 }
 ```
 
+## TanStack Form Integration
+
+TanStack Form natively supports ArkType via the [Standard Schema](https://github.com/standard-schema/standard-schema) specification. No adapter needed - use `type()` directly:
+
+```typescript
+import { useForm } from '@tanstack/react-form'
+import { type } from '@nextnode/validation'
+
+const schema = type({
+  email: 'string.email',
+  password: 'string >= 8'
+})
+
+function LoginForm() {
+  const form = useForm({
+    defaultValues: { email: '', password: '' },
+    validators: {
+      onChange: schema
+    },
+    onSubmit: async ({ value }) => {
+      console.log(value)
+    }
+  })
+
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit() }}>
+      <form.Field name="email">
+        {(field) => (
+          <>
+            <input
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+            />
+            {field.state.meta.errors.map(err => <span key={err}>{err}</span>)}
+          </>
+        )}
+      </form.Field>
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
+```
+
+> **Note**: Use raw ArkType (`type()`) with TanStack Form. The `v.schema()` wrapper is designed for React Hook Form integration.
+
 ## Server Middleware
 
 ### Hono
