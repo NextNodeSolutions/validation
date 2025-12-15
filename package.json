@@ -18,12 +18,13 @@
 	"files": [
 		"CHANGELOG.md",
 		"README.md",
-		"dist/**/*"
+		"dist/**/*.d.ts",
+		"dist/**/*.js"
 	],
 	"main": "./dist/index.js",
 	"scripts": {
 		"prebuild": "pnpm clean",
-		"build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+		"build": "tsup",
 		"changeset": "changeset",
 		"changeset:publish": "changeset publish",
 		"changeset:version": "changeset version",
@@ -34,6 +35,7 @@
 		"lint-staged": "lint-staged",
 		"prepare": "husky",
 		"prepublishOnly": "pnpm build",
+		"size": "du -sh dist/ && find dist -name '*.js' -exec wc -c {} + | tail -1",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"test:ui": "vitest --ui",
@@ -57,7 +59,7 @@
 		"lint-staged": "^16",
 		"prettier": "^3",
 		"prettier-plugin-tailwindcss": "^0.7.2",
-		"tsc-alias": "^1",
+		"tsup": "^8.5.1",
 		"typescript": "^5",
 		"vitest": "^3"
 	},
@@ -88,32 +90,32 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
 		},
 		"./react-hook-form": {
-			"import": "./dist/integrations/react-hook-form/index.js",
-			"types": "./dist/integrations/react-hook-form/index.d.ts"
+			"types": "./dist/react-hook-form.d.ts",
+			"import": "./dist/react-hook-form.js"
 		},
 		"./middleware": {
-			"import": "./dist/integrations/middleware/index.js",
-			"types": "./dist/integrations/middleware/index.d.ts"
+			"types": "./dist/middleware.d.ts",
+			"import": "./dist/middleware.js"
 		},
 		"./middleware/hono": {
-			"import": "./dist/integrations/middleware/hono.js",
-			"types": "./dist/integrations/middleware/hono.d.ts"
+			"types": "./dist/middleware/hono.d.ts",
+			"import": "./dist/middleware/hono.js"
 		},
 		"./middleware/express": {
-			"import": "./dist/integrations/middleware/express.js",
-			"types": "./dist/integrations/middleware/express.d.ts"
+			"types": "./dist/middleware/express.d.ts",
+			"import": "./dist/middleware/express.js"
 		},
 		"./middleware/fastify": {
-			"import": "./dist/integrations/middleware/fastify.js",
-			"types": "./dist/integrations/middleware/fastify.d.ts"
+			"types": "./dist/middleware/fastify.d.ts",
+			"import": "./dist/middleware/fastify.js"
 		},
 		"./schemas": {
-			"import": "./dist/lib/schemas/index.js",
-			"types": "./dist/lib/schemas/index.d.ts"
+			"types": "./dist/schemas.d.ts",
+			"import": "./dist/schemas.js"
 		}
 	},
 	"module": "./dist/index.js",
@@ -127,5 +129,6 @@
 		}
 	},
 	"prettier": "@nextnode/standards/prettier",
+	"sideEffects": false,
 	"types": "./dist/index.d.ts"
 }

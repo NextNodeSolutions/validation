@@ -68,14 +68,23 @@ src/
 ## Development Commands
 
 ```bash
-pnpm build              # Build library
-pnpm test               # Run tests (119 tests)
+pnpm build              # Build with tsup (minified ESM + .d.ts)
+pnpm test               # Run tests (120 tests)
 pnpm test:watch         # Watch mode
 pnpm test:coverage      # Coverage report
 pnpm type-check         # TypeScript validation
 pnpm lint               # Biome linting with auto-fix
 pnpm format             # Biome formatting
+pnpm size               # Check bundle size
 ```
+
+## Build Configuration
+
+- **Bundler**: tsup (esbuild-based, zero-config)
+- **Format**: ESM-only (minified)
+- **Output**: `dist/` (JS + .d.ts files only)
+- **Source maps**: Generated locally, not published to npm
+- **Bundle Size**: ~19KB minified JS (excluding arktype external)
 
 ## Key Types
 
