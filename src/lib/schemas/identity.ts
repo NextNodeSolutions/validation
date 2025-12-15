@@ -22,8 +22,35 @@ export const phoneFlexible = v.schema(type(/^[\d\s\-()+ ]{7,20}$/))
 /**
  * US Social Security Number
  * Format: XXX-XX-XXXX
+ *
+ * Validates format and rejects invalid patterns per SSA guidelines:
+ * - Area numbers 000, 666, and 900-999 are invalid
+ * - Group number 00 is invalid
+ * - Serial number 0000 is invalid
  */
-export const ssnUS = v.schema(type(/^\d{3}-\d{2}-\d{4}$/))
+export const ssnUS = v.schema(
+	type(/^\d{3}-\d{2}-\d{4}$/).narrow((ssn, ctx) => {
+		const [area, group, serial] = ssn.split('-')
+
+		// Invalid area numbers: 000, 666, 900-999
+		const areaNum = Number.parseInt(area!, 10)
+		if (areaNum === 0 || areaNum === 666 || areaNum >= 900) {
+			return ctx.reject({ expected: 'valid SSN area number' })
+		}
+
+		// Invalid group number: 00
+		if (group === '00') {
+			return ctx.reject({ expected: 'valid SSN group number' })
+		}
+
+		// Invalid serial number: 0000
+		if (serial === '0000') {
+			return ctx.reject({ expected: 'valid SSN serial number' })
+		}
+
+		return true
+	}),
+)
 
 /**
  * French Social Security Number (INSEE)

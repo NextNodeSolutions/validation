@@ -7,6 +7,7 @@ import { type } from 'arktype'
 
 import { v } from '../core/engine.js'
 import type { Schema } from '../core/types.js'
+import { email } from './common.js'
 
 /**
  * Username: starts with letter, alphanumeric with underscore, 3-30 chars
@@ -20,11 +21,22 @@ export const passwordBasic = v.schema(type('string >= 8'))
 
 /**
  * Email for auth purposes
+ * Alias for email from common schemas
  */
-export const authEmail = v.schema(type('string.email'))
+export const authEmail = email
 
 /**
- * JWT token format
+ * JWT token format validation (FORMAT ONLY)
+ *
+ * @security This validates JWT string format only (three base64url segments).
+ * It does NOT verify:
+ * - Signature validity
+ * - Token expiration
+ * - Issuer/audience claims
+ * - Algorithm restrictions
+ *
+ * For security validation, use a JWT library (e.g., jose, jsonwebtoken)
+ * to verify signatures, expiration, and claims.
  */
 export const jwtToken = v.schema(
 	type(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/),
@@ -159,6 +171,11 @@ export const strongPassword = createPasswordSchema({
 
 /**
  * Login form schema
+ *
+ * @security The password field accepts any non-empty string intentionally.
+ * Login validation should not reveal password policy requirements.
+ * Actual password verification happens server-side against stored hash.
+ * Implement rate limiting and account lockout to prevent brute force attacks.
  */
 export const loginSchema = v.schema(
 	type({
@@ -176,7 +193,7 @@ export const registerSchema = v.schema(
 		email: 'string.email',
 		username: /^[a-zA-Z][a-zA-Z0-9_]{2,29}$/,
 		password: 'string >= 8',
-		confirmPassword: 'string >= 1',
+		confirmPassword: 'string >= 8',
 	}).narrow((data, ctx) => {
 		if (data.password !== data.confirmPassword) {
 			return ctx.reject({
@@ -200,12 +217,16 @@ export const passwordResetRequestSchema = v.schema(
 
 /**
  * Password reset schema
+ *
+ * @security Token validation is format-only (non-empty string).
+ * Applications should use cryptographically secure tokens (e.g., UUID v4, random bytes).
+ * Implement token expiration and single-use policies server-side.
  */
 export const passwordResetSchema = v.schema(
 	type({
 		token: 'string >= 1',
 		password: 'string >= 8',
-		confirmPassword: 'string >= 1',
+		confirmPassword: 'string >= 8',
 	}).narrow((data, ctx) => {
 		if (data.password !== data.confirmPassword) {
 			return ctx.reject({

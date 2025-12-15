@@ -9,7 +9,16 @@ import { v } from '../core/engine.js'
 import { percentage } from './common.js'
 
 /**
- * Credit card number using Luhn algorithm validation
+ * Credit card number using Luhn algorithm validation (FORMAT ONLY)
+ *
+ * @security This validates card number format and Luhn checksum only.
+ * It does NOT:
+ * - Verify the card exists or is active
+ * - Check card type prefixes (Visa, Mastercard, etc.)
+ * - Reject known test card numbers (e.g., 4111111111111111)
+ *
+ * For production payment processing, use a payment provider (Stripe, etc.)
+ * that handles full card validation and PCI compliance.
  */
 export const creditCard = v.schema(
 	type('string').narrow((cardNumber, ctx) => {
@@ -83,7 +92,13 @@ export const price = v.schema(
 export { percentage }
 
 /**
- * IBAN (International Bank Account Number)
+ * IBAN (International Bank Account Number) - FORMAT ONLY
+ *
+ * @security This validates IBAN string format only (country code + check digits + BBAN).
+ * It does NOT verify check digit validity using MOD 97-10 algorithm.
+ * Invalid IBANs may pass format validation.
+ *
+ * For actual IBAN verification, use a dedicated library like `ibantools`.
  */
 export const iban = v.schema(type(/^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$/))
 

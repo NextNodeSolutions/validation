@@ -656,7 +656,7 @@ describe('Pre-built Schemas', () => {
 
 		describe('ssnUS', () => {
 			it('should accept valid US SSN format', () => {
-				const validSsns = ['123-45-6789', '000-00-0000']
+				const validSsns = ['123-45-6789', '001-01-0001', '555-55-5555']
 
 				validSsns.forEach(ssn => {
 					const result = ssnUS.safeParse(ssn)
@@ -671,6 +671,30 @@ describe('Pre-built Schemas', () => {
 					const result = ssnUS.safeParse(ssn)
 					expect(result.success).toBe(false)
 				})
+			})
+
+			it('should reject invalid area numbers (000, 666, 900-999)', () => {
+				const invalidAreaSsns = [
+					'000-12-3456',
+					'666-12-3456',
+					'900-12-3456',
+					'999-12-3456',
+				]
+
+				invalidAreaSsns.forEach(ssn => {
+					const result = ssnUS.safeParse(ssn)
+					expect(result.success).toBe(false)
+				})
+			})
+
+			it('should reject invalid group number (00)', () => {
+				const result = ssnUS.safeParse('123-00-4567')
+				expect(result.success).toBe(false)
+			})
+
+			it('should reject invalid serial number (0000)', () => {
+				const result = ssnUS.safeParse('123-45-0000')
+				expect(result.success).toBe(false)
 			})
 		})
 

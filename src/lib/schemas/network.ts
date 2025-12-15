@@ -6,7 +6,7 @@
 import { type } from 'arktype'
 
 import { v } from '../core/engine.js'
-import { url } from './common.js'
+import { slug, url } from './common.js'
 
 /**
  * IPv4 address
@@ -41,11 +41,19 @@ export { url }
 
 /**
  * Hostname (domain name without protocol)
+ * Limited to 253 characters per RFC 1035 to prevent ReDoS
  */
 export const hostname = v.schema(
-	type(
-		/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-	),
+	type('string <= 253').narrow((value, ctx) => {
+		if (
+			!/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(
+				value,
+			)
+		) {
+			return ctx.reject({ expected: 'valid hostname' })
+		}
+		return true
+	}),
 )
 
 /**
@@ -78,15 +86,26 @@ export const httpStatusCode = v.schema(
 
 /**
  * Domain with optional subdomain
+ * Limited to 253 characters per RFC 1035 to prevent ReDoS
  */
 export const domain = v.schema(
-	type(/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/),
+	type('string <= 253').narrow((value, ctx) => {
+		if (
+			!/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(
+				value,
+			)
+		) {
+			return ctx.reject({ expected: 'valid domain' })
+		}
+		return true
+	}),
 )
 
 /**
  * URL slug (path segment)
+ * Alias for slug from common schemas
  */
-export const urlSlug = v.schema(type(/^[a-z0-9]+(?:-[a-z0-9]+)*$/))
+export const urlSlug = slug
 
 /**
  * Bundled network schemas
