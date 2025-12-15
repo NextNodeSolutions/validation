@@ -1,6 +1,6 @@
 {
 	"name": "@nextnode/validation",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "A TypeScript validation library powered by ArkType for comprehensive input validation on both frontend and backend in NextNode projects",
 	"keywords": [
 		"arktype",
