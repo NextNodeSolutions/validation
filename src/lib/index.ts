@@ -4,12 +4,8 @@
 
 // Core
 export * from './core/index.js'
-export type { ErrorCode, ErrorFormatterConfig } from './errors/index.js'
+export type { ErrorCode } from './errors/index.js'
 // Errors - export only what's not in core
-export {
-	createErrorFormatter,
-	DefaultErrorFormatter,
-	ErrorCodes,
-} from './errors/index.js'
+export { DefaultErrorFormatter, ErrorCodes } from './errors/index.js'
 // Schemas
 export * from './schemas/index.js'

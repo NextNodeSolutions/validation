@@ -3,9 +3,5 @@
  */
 
 export { type ErrorCode, ErrorCodes } from './codes.js'
-export { createErrorFormatter, DefaultErrorFormatter } from './formatter.js'
-export type {
-	ErrorFormatter,
-	ErrorFormatterConfig,
-	ValidationIssue,
-} from './types.js'
+export { DefaultErrorFormatter } from './formatter.js'
+export type { ErrorFormatter, ValidationIssue } from './types.js'
