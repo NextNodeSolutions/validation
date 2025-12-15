@@ -7,15 +7,13 @@ import { type } from 'arktype'
 
 import { isWrappedSchema } from '../../lib/core/guards.js'
 import type { Schema, ValidationIssue } from '../../lib/core/types.js'
-import { DefaultErrorFormatter } from '../../lib/errors/formatter.js'
+import { defaultErrorFormatter } from '../../lib/errors/formatter.js'
 import type {
 	ArktypeResolverOptions,
 	FieldError,
 	FieldErrors,
 	ResolverResult,
 } from './types.js'
-
-const errorFormatter = new DefaultErrorFormatter()
 
 /**
  * Converts validation issues to React Hook Form FieldErrors
@@ -114,7 +112,7 @@ export const arktypeResolver = <T extends Record<string, unknown>>(
 		const result = schema(values)
 
 		if (result instanceof type.errors) {
-			const issues = errorFormatter.format(result)
+			const issues = defaultErrorFormatter.format(result)
 
 			return {
 				values: {},

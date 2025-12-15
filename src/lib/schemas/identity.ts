@@ -27,6 +27,9 @@ export const phoneFlexible = v.schema(type(/^[\d\s\-()+ ]{7,20}$/))
  * - Area numbers 000, 666, and 900-999 are invalid
  * - Group number 00 is invalid
  * - Serial number 0000 is invalid
+ *
+ * @security SSN is sensitive PII. Never log or expose in error messages.
+ * Ensure proper encryption at rest and in transit.
  */
 export const ssnUS = v.schema(
 	type(/^\d{3}-\d{2}-\d{4}$/).narrow((ssn, ctx) => {
@@ -55,6 +58,9 @@ export const ssnUS = v.schema(
 /**
  * French Social Security Number (INSEE)
  * 13 digits + 2 digit key
+ *
+ * @security SSN is sensitive PII. Never log or expose in error messages.
+ * Ensure proper encryption at rest and in transit.
  */
 export const ssnFR = v.schema(
 	type(/^[12]\d{2}(0[1-9]|1[0-2])\d{2}\d{3}\d{3}\d{2}$/),
@@ -133,11 +139,17 @@ export const title = v.schema(
 
 /**
  * National ID (generic pattern - alphanumeric)
+ *
+ * @security National ID is sensitive PII. Never log or expose in error messages.
+ * Ensure proper encryption at rest and in transit.
  */
 export const nationalId = v.schema(type(/^[A-Z0-9]{5,20}$/i))
 
 /**
  * Passport number (generic pattern)
+ *
+ * @security Passport number is sensitive PII. Never log or expose in error messages.
+ * Ensure proper encryption at rest and in transit.
  */
 export const passportNumber = v.schema(type(/^[A-Z0-9]{6,12}$/i))
 

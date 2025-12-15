@@ -7,8 +7,8 @@
 
 import type { ArkErrors } from 'arktype'
 
+import type { ErrorFormatter, ValidationIssue } from '../core/types.js'
 import { ErrorCodes } from './codes.js'
-import type { ErrorFormatter, ValidationIssue } from './types.js'
 
 /**
  * Internal representation of ArkType error properties
@@ -213,3 +213,9 @@ export class DefaultErrorFormatter implements ErrorFormatter {
 		return Object.keys(params).length > 0 ? params : undefined
 	}
 }
+
+/**
+ * Singleton instance of DefaultErrorFormatter
+ * Use this instead of creating new instances
+ */
+export const defaultErrorFormatter = new DefaultErrorFormatter()

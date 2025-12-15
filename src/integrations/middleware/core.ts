@@ -12,11 +12,9 @@ import type {
 	ValidationIssue,
 	ValidationResult,
 } from '../../lib/core/types.js'
-import { DefaultErrorFormatter } from '../../lib/errors/formatter.js'
+import { defaultErrorFormatter } from '../../lib/errors/formatter.js'
 import { coreLogger } from '../../utils/logger.js'
 import type { ValidationErrorResponse } from './types.js'
-
-const errorFormatter = new DefaultErrorFormatter()
 
 /**
  * Core validation function used by all framework adapters
@@ -35,7 +33,7 @@ export const validateData = <T>(
 	if (result instanceof type.errors) {
 		return {
 			success: false,
-			issues: errorFormatter.format(result),
+			issues: defaultErrorFormatter.format(result),
 		}
 	}
 

@@ -264,7 +264,6 @@ export { isWrappedSchema } // Type guard
 
 // Types
 export type { Schema } // Schema wrapper interface
-export type { SchemaFactory }
 export type { SchemaMetadata }
 export type { ValidationEngineConfig }
 export type { ValidationIssue }
@@ -277,10 +276,8 @@ export type { Infer } // Type inference helper
 ```typescript
 export { ErrorCodes } // 38 error code constants
 export { DefaultErrorFormatter } // Default formatter class
-export { createErrorFormatter } // Factory function
 export type { ErrorCode } // Union of all codes
 export type { ErrorFormatter }
-export type { ErrorFormatterConfig }
 ```
 
 #### Pre-built Schemas (68 total)
@@ -359,11 +356,7 @@ export type { FastifyValidatorOptions }
 
 // Types
 export type { ValidationTarget } // 'body' | 'query' | 'params' | 'headers'
-export type { MiddlewareConfig }
-export type { ErrorHandler }
-export type { ErrorHandlerContext }
 export type { ValidationErrorResponse }
-export type { FrameworkAdapter }
 ```
 
 ## Error Codes Reference (38 codes)

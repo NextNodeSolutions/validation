@@ -15,10 +15,4 @@ export type { HonoValidatorOptions } from './hono.js'
 // Hono
 export { getValidated, honoValidator } from './hono.js'
 // Types
-export type {
-	ErrorHandler,
-	ErrorHandlerContext,
-	MiddlewareConfig,
-	ValidationErrorResponse,
-	ValidationTarget,
-} from './types.js'
+export type { ValidationErrorResponse, ValidationTarget } from './types.js'

@@ -2,6 +2,6 @@
  * Error handling exports
  */
 
+export type { ErrorFormatter, ValidationIssue } from '../core/types.js'
 export { type ErrorCode, ErrorCodes } from './codes.js'
-export { DefaultErrorFormatter } from './formatter.js'
-export type { ErrorFormatter, ValidationIssue } from './types.js'
+export { DefaultErrorFormatter, defaultErrorFormatter } from './formatter.js'

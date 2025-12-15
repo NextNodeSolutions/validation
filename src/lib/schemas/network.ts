@@ -19,11 +19,19 @@ export const ipv4 = v.schema(
 
 /**
  * IPv6 address (simplified pattern)
+ * Limited to 39 characters (max IPv6 length) to prevent ReDoS
  */
 export const ipv6 = v.schema(
-	type(
-		/^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:){1,7}:$|^(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}$/,
-	),
+	type('string <= 39').narrow((value, ctx) => {
+		if (
+			!/^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:){1,7}:$|^(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}$/.test(
+				value,
+			)
+		) {
+			return ctx.reject({ expected: 'valid IPv6 address' })
+		}
+		return true
+	}),
 )
 
 /**

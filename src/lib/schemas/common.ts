@@ -26,8 +26,16 @@ export const slug = v.schema(type(/^[a-z0-9]+(?:-[a-z0-9]+)*$/))
 
 /**
  * Semantic version pattern
+ * Limited to 256 characters to prevent ReDoS
  */
-export const semver = v.schema(type(/^\d+\.\d+\.\d+(?:-[\w.]+)?(?:\+[\w.]+)?$/))
+export const semver = v.schema(
+	type('string <= 256').narrow((value, ctx) => {
+		if (!/^\d+\.\d+\.\d+(?:-[\w.]+)?(?:\+[\w.]+)?$/.test(value)) {
+			return ctx.reject({ expected: 'valid semver' })
+		}
+		return true
+	}),
+)
 
 /**
  * Common number validators
